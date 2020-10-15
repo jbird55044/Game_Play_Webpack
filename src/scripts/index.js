@@ -2,6 +2,7 @@ console.log('webpack starterkit');
 
 var myGamePiece;
 
+
 function startGame() {
     myGamePiece = new component(30, 20, "red", 580, 20);
     myGameArea.start();
