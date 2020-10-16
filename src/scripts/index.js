@@ -5,6 +5,11 @@ let jumperInAir = false;    // Tracks when leaves plane
 let gravityFreeFall = 1.75;   // bigger number faster fall
 let gravityChute = .75;   // bigger number faster fall
 let planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
+let parachuteLRInfluance = .2;  // bigger number, the more the chute can go L or R when pulled
+let parachuteLRMax = 1; // the maximum influance of parachute L or R when pulled
+let windCurrent = (Math.random() - .5);
+let windInfluance = 0;  // amount of change via random generator
+let windInfluanceMax = 1; // maximum wind gusts
 
 
 var parachuteGamePiece;
@@ -14,7 +19,8 @@ var abulanceGamePiece;
 var windSock;
 
 function startGame() {
-    let num = (Math.random()*2).toFixed(2);
+    //let num = (Math.random()*2).toFixed(2);
+    let num = ((Math.random()) - .5).toFixed(3)
     console.log (`Random Number: ${num}`);
 
 
@@ -106,8 +112,16 @@ function component(width, height, color, x, y) {
 
     if ( jumperInAir && !chutePulled && (parachuteGamePiece.speedX <= 0 ) ) {
         parachuteGamePiece.speedX += planeInertiaInfluance;     //slow down initial plane inertia 
-        if (parachuteGamePiece.speedX >= 0 ) console.log (`jumper zero`);
+        if (parachuteGamePiece.speedX >= 0 ) console.log (`jumper verticle fall`);
     }; 
+
+    if ( jumperInAir && chutePulled && (windCurrent < windInfluanceMax) ) {
+         windInfluance = ((Math.random() - .5) / 100).toFixed(3);  //both  pos and neg numbers
+         windCurrent =+ windInfluance
+         parachuteGamePiece.speedX =+ windCurrent;
+         console.log (windInfluance);
+    };
+
     myGameArea.clear();
     
     parachuteGamePiece.newPos();
@@ -124,14 +138,14 @@ function component(width, height, color, x, y) {
   }
   
   function moveleft() {
-      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX > -1.5 ) {
-        parachuteGamePiece.speedX -= .25;      
+      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX > -parachuteLRMax ) {
+        parachuteGamePiece.speedX -= parachuteLRInfluance;      
       };
     }
   
   function moveright() {
-      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX < 1.5 ) {
-          parachuteGamePiece.speedX += .25;
+      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX < parachuteLRMax ) {
+          parachuteGamePiece.speedX += parachuteLRInfluance;
       };
   }
 
@@ -146,6 +160,7 @@ function component(width, height, color, x, y) {
     jumperInAir = false;
     landingPadx = (Math.floor(Math.random() * 500 ));
     landingPadGamePiece.x = landingPadx;
+    windCurrent = (Math.random() - .5);
   }
 
 
