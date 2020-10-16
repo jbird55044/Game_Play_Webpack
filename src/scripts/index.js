@@ -1,5 +1,12 @@
 console.log('webpack starterkit');
 
+let chutePulled = false;   // tracks when chute is pulled
+let jumperInAir = false;    // Tracks when leaves plane
+let gravityFreeFall = 1.75;   // bigger number faster fall
+let gravityChute = .75;   // bigger number faster fall
+let planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
+
+
 var parachuteGamePiece;
 var planeGamePiece;
 var landingPadGamePiece;
@@ -7,8 +14,12 @@ var abulanceGamePiece;
 var windSock;
 
 function startGame() {
-    planeGamePiece = new component(30, 15, "blue", 570, 10);
-    parachuteGamePiece = new component(30, 30, "red", 570, 10);
+    let num = (Math.random()*2).toFixed(2);
+    console.log (`Random Number: ${num}`);
+
+
+    planeGamePiece = new component(30, 15, "blue", 580, 10);
+    parachuteGamePiece = new component(30, 30, "red", 580, 10);
     abulanceGamePiece = new component(25, 15, "yellow", 570, 380);
     landingPadx = (Math.floor(Math.random() * 500 ))
     console.log (`Landingpad x ${landingPadx}`);
@@ -92,6 +103,11 @@ function component(width, height, color, x, y) {
   }
   
   function updateGameArea() {
+
+    if ( jumperInAir && !chutePulled && (parachuteGamePiece.speedX <= 0 ) ) {
+        parachuteGamePiece.speedX += planeInertiaInfluance;     //slow down initial plane inertia 
+        if (parachuteGamePiece.speedX >= 0 ) console.log (`jumper zero`);
+    }; 
     myGameArea.clear();
     
     parachuteGamePiece.newPos();
@@ -107,44 +123,51 @@ function component(width, height, color, x, y) {
     windSock.update();
   }
   
-  function moveup() {
-    parachuteGamePiece.speedY -= 0; 
-  }
-  
-  function movedown() {
-    parachuteGamePiece.speedY += 0; 
-  }
-  
   function moveleft() {
-    parachuteGamePiece.speedX -= 1;
-  }
+      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX > -1.5 ) {
+        parachuteGamePiece.speedX -= .25;      
+      };
+    }
   
   function moveright() {
-    parachuteGamePiece.speedX += 1;
+      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX < 1.5 ) {
+          parachuteGamePiece.speedX += .25;
+      };
   }
 
   function reset() {
-    parachuteGamePiece.x = 570;
-    parachuteGamePiece.y = 10;
-    parachuteGamePiece.speedX = 0;
-    parachuteGamePiece.speedY = 0;
-    planeGamePiece.x = 570;
+    planeGamePiece.x = 580;
     planeGamePiece.speedX = 0;
+    parachuteGamePiece.x = 580;
+    parachuteGamePiece.y = 10;
+    parachuteGamePiece.speedX = planeGamePiece.speedX;
+    parachuteGamePiece.speedY = 0;
+    chutePulled = false;
+    jumperInAir = false;
     landingPadx = (Math.floor(Math.random() * 500 ));
     landingPadGamePiece.x = landingPadx;
   }
 
 
   function flyplane() {
-    planeGamePiece.speedX -=.5;
+    let planeSpeed = -(Math.random()*2).toFixed(2);
+    planeGamePiece.speedX = planeSpeed
     parachuteGamePiece.x = planeGamePiece.x;
     parachuteGamePiece.speedX = planeGamePiece.speedX;
-
   };
 
   function jump() {
-    parachuteGamePiece.speedY += 1; 
-  }
+    if ( jumperInAir ) {
+       chutePulled = true    // set w/ second push of button
+    };   
+    jumperInAir = true;  
+    if ( chutePulled ) {
+        parachuteGamePiece.speedY = gravityChute;
+    }  
+    else {
+        parachuteGamePiece.speedY = gravityFreeFall;
+    };
+  };
 
 
 
