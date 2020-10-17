@@ -3,7 +3,7 @@ console.log('webpack starterkit');
 //counters and holders
 let chutePulled = false;   // tracks when chute is pulled
 let jumperInAir = false;    // Tracks when leaves plane
-let windToloranceTimer = 0;  // counter
+let windToloranceTimer = 9999999;  // counter (start large to invoke first wind)
 
 // letiables that adjust game play
 const gravityFreeFall = 1.75;   // bigger number faster fall
@@ -25,7 +25,11 @@ let parachuteGamePiece;
 let planeGamePiece;
 let landingPadGamePiece;
 let abulanceGamePiece;
-let windSock;
+let windSockW2;
+let windSockW1;
+let windSock0;
+let windSockE1;
+let windSockE2;
 
 function startGame() {
     //let num = (Math.random()*2).toFixed(2);
@@ -39,12 +43,12 @@ function startGame() {
     abulanceGamePiece = new component(25, 15, "yellow", 570, 380);
     landingPadx = (Math.floor(Math.random() * 500 ))
     console.log (`Landingpad x ${landingPadx}`);
-    landingPadGamePiece = new component(50, 5, "green", landingPadx, 395);
-    windSockW2 = new component(3, 60, "violet", 20, 340);
-    windSockW1 = new component(3, 60, "violet", 20, 340);
-    windSock0 = new component(3, 60, "violet", 20, 340);
-    windSockE1 = new component(3, 60, "violet", 20, 340);
-    windSockE2 = new component(3, 60, "violet", 20, 340);
+    landingPadGamePiece = new component(60, 5, "green", landingPadx, 395);
+    windSockW2 = new component(40, 10, "red", 0, 340);
+    windSockW1 = new component(20, 10, "violet", 20, 340);
+    windSock0 = new component(3, 60, "violet", 40, 340);
+    windSockE1 = new component(20, 10, "violet", 40, 340);
+    windSockE2 = new component(40, 10, "red", 40, 340);
     
     myGameArea.start();
 }
@@ -81,6 +85,7 @@ function component(width, height, color, x, y) {
     }
 }
 
+/*
 function updateGameArea() {
     myGameArea.clear();
     parachuteGamePiece.speedX = 0;
@@ -96,6 +101,7 @@ function updateGameArea() {
     planeGamePiece.newPos();
     planeGamePiece.update();
 };
+*/
 
 
 // --------- auto locators
@@ -112,48 +118,93 @@ function component(width, height, color, x, y) {
     this.x = x;
     this.y = y; 
     this.update = function() {
-      ctx = myGameArea.context;
-      ctx.fillStyle = color;
-      ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
     }
     this.newPos = function() {
-      this.x += this.speedX;
-      this.y += this.speedY; 
+        this.x += this.speedX;
+        this.y += this.speedY; 
     } 
-  }
-  
-  function updateGameArea() {
+}
 
-    if ( jumperInAir && !chutePulled && (parachuteGamePiece.speedX <= 0 ) ) {
-        parachuteGamePiece.speedX += planeInertiaInfluance;     //slow down para from initial plane inertia 
-        if (parachuteGamePiece.speedX >= 0 ) console.log (`jumper verticle fall`);
+function updateGameArea() {
+    
+    if ( jumperInAir && !chutePulled && (parachuteGamePiece.speedX <= 0 ) ) {  //plane only heads West
+        parachuteGamePiece.speedX += (planeInertiaInfluance / 2);     //slow down para from initial plane inertia 
+        if (parachuteGamePiece.speedX >= 0 ) {
+            parachuteGamePiece.speedX = 0;
+            moveleft();   //used to invoke wind influance (upon pulling of chute)
+            moveright();  //used to invoke wind influance (upon pulling of chute)
+        };
     }; 
-        
+    
     if ( windToloranceTimer > windChangeRate ) {
         windCurrent = influanceWind(windCurrent);
         windToloranceTimer = 0;  //reset to start counting again
-    }
+    }  //end of if
     windToloranceTimer += 1
     // console.log (`Wind Current:  ${windCurrent}`);
-        
+    
+    if (myGameArea.key && myGameArea.key == 37) { moveleft()  }  // left arrow
+    if (myGameArea.key && myGameArea.key == 39) { moveright() }  //right arrow
+    if (myGameArea.key && myGameArea.key == 32) { jump() }  //space
+    if (myGameArea.key && myGameArea.key == 71) { flyplane() }  //G for Go (fly plane)
+    if (myGameArea.key && myGameArea.key == 82) { reset() }  //R for Reset
+
+    //if (myGameArea.key && myGameArea.key == 38) {myGamePiece.speedY = -1; }
+    //if (myGameArea.key && myGameArea.key == 40) {myGamePiece.speedY = 1; }
+
     myGameArea.clear();
     
     parachuteGamePiece.newPos();
     planeGamePiece.newPos();
     landingPadGamePiece.newPos();
     abulanceGamePiece.newPos();
-    windSock0.newPos();
-
+    
     parachuteGamePiece.update();
     planeGamePiece.update();
     landingPadGamePiece.update();
     abulanceGamePiece.update();
-    windSock0.update();
-  }
-  
-  function moveleft() {
+    
+    switch (windCurrent) {    //update wind sock
+        case -2:
+            windSockW2.newPos();
+            windSockW2.update();
+            windSock0.newPos();
+            windSock0.update();
+            break;
+        case -1:
+            windSockW1.newPos();
+            windSockW1.update();
+            windSock0.newPos();
+            windSock0.update();
+            break;
+        case 0:
+            windSock0.newPos();
+            windSock0.update();
+            break;
+        case 1:
+            windSockE1.newPos();
+            windSockE1.update();
+            windSock0.newPos();
+            windSock0.update();
+            break;
+        case 2:
+            windSockE2.newPos();
+            windSockE2.update();
+            windSock0.newPos();
+            windSock0.update();
+            break;
+        default:
+            console.log (`Error in Wind Case`);
+            break;
+    };  //end of wind switch
+}
+
+function moveleft() {
       if ( jumperInAir && chutePulled ) {
-          windCurrent = 2                                                   // <----------    remove!!
+          //windCurrent = 2                                                   // <----------    remove!!
           console.log (`entering switchL: ${parachuteGamePiece.speedX} windCur: ${windCurrent}`);
         switch (windCurrent) {
             case -2:  // westwardly strong wind (negative numbers)
@@ -209,7 +260,7 @@ function component(width, height, color, x, y) {
   } // end moveLeft fn
   
   function moveright() {
-    windCurrent = 2                                                   // <----------    remove!!
+    //windCurrent = 2                                                   // <----------    remove!!
     if ( jumperInAir && chutePulled ) {
         console.log (`entering switchR: ${parachuteGamePiece.speedX} windCur: ${windCurrent}`);
         switch (windCurrent) {
@@ -320,6 +371,7 @@ function component(width, height, color, x, y) {
     else {
         parachuteGamePiece.speedY = gravityFreeFall;
     };
+    
   };
 
 
