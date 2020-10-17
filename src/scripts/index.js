@@ -4,7 +4,6 @@ console.log('webpack starterkit');
 let chutePulled = false;   // tracks when chute is pulled
 let jumperInAir = false;    // Tracks when leaves plane
 let windToloranceTimer = 0;  // counter
-let parachuteLRMax = 0; // holder changes in game play
 
 // letiables that adjust game play
 const gravityFreeFall = 1.75;   // bigger number faster fall
@@ -14,16 +13,11 @@ let   windCurrent = Math.floor(Math.random() * 5 ) - 2;  // 5 letiations; negati
 const windChangeRate = 300;   // 0 to 100 rate of wind change.  0 Most Agressive, 100 most time between changes
 const parachuteLRInfluance = .2;  // bigger number, the more the chute can go L or R when pulled
 const parachuteLRMax = {   // fastest speeds allowed during varying winds
-    west2Max: -1.75,
-    west2Min: -.25,
-    west1Max: -.5,
-    west1Min: 1.25,
-    nuetralW: -1.5,
-    nuetralE: 1.5,
-    east1Min: -1.25,
-    east1Max: .5,
-    east2Min: .25,
-    east2Max: 1.75
+    west2Max: -1.75,    west2Min: -.25,
+    west1Max: -1,       west1Min: .5,
+    neutralW: -.75,     neutralE: .75,
+    east1Max: 1,        east1Min: -.5,
+    east2Max: 1.75,     east2Min: .25
 };
 
 // game pieces
@@ -131,7 +125,7 @@ function component(width, height, color, x, y) {
   function updateGameArea() {
 
     if ( jumperInAir && !chutePulled && (parachuteGamePiece.speedX <= 0 ) ) {
-        parachuteGamePiece.speedX += planeInertiaInfluance;     //slow down initial plane inertia 
+        parachuteGamePiece.speedX += planeInertiaInfluance;     //slow down para from initial plane inertia 
         if (parachuteGamePiece.speedX >= 0 ) console.log (`jumper verticle fall`);
     }; 
         
@@ -159,79 +153,119 @@ function component(width, height, color, x, y) {
   
   function moveleft() {
       if ( jumperInAir && chutePulled ) {
-          windCurrent = 2
-          console.log (`entering switch: ${parachuteGamePiece.speedX}`);
+          windCurrent = 2                                                   // <----------    remove!!
+          console.log (`entering switchL: ${parachuteGamePiece.speedX} windCur: ${windCurrent}`);
         switch (windCurrent) {
             case -2:  // westwardly strong wind (negative numbers)
+                parachuteGamePiece.speedX += (-parachuteLRInfluance + -.25);
                 if ( parachuteGamePiece.speedX <= parachuteLRMax.west2Max ) {
                     parachuteGamePiece.speedX = parachuteLRMax.west2Max;
                 } 
-                else if (parachuteGamePiece.speedX >= parachuteLRMax.west2min ) {
-                        parachuteGamePiece.speedX = parachuteLRMax.west2min;
-                } 
-                else {
-                    parachuteGamePiece.speedX += (-parachuteLRInfluance + -.25);
-                }
+                else if (parachuteGamePiece.speedX >= parachuteLRMax.west2Min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.west2Min;
+                }; 
                 break;
             case -1:  // westwardly mild wind
-                if ( parachuteGamePiece.speedX <= parachuteLRMaxW1 ) {
-                    parachuteGamePiece.speedX = parachuteLRMaxW1;
+                parachuteGamePiece.speedX += (-parachuteLRInfluance + -.125);
+                if ( parachuteGamePiece.speedX <= parachuteLRMax.west1Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.west1Max;
                 } 
-                else if (parachuteGamePiece.speedX >= (parachuteLRMaxW1 * -2) ) {
-                        parachuteGamePiece.speedX = (parachuteLRMaxW1 * -2 );
-                } 
-                else {
-                    parachuteGamePiece.speedX += (-parachuteLRInfluance + -.125);
-                }
+                else if (parachuteGamePiece.speedX >= parachuteLRMax.west1Min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.west1Min;
+                };
                 break;
             case 0:   //no influance
-                if ( parachuteGamePiece.speedX <= parachuteLRMaxN * 2 ) {
-                    parachuteGamePiece.speedX = parachuteLRMaxN * 2;
+                parachuteGamePiece.speedX += -parachuteLRInfluance;
+                if ( parachuteGamePiece.speedX <= parachuteLRMax.neutralW ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.neutralW;
                 } 
-                else if (parachuteGamePiece.speedX >= parachuteLRMaxN * 2 ) {
-                        parachuteGamePiece.speedX = parachuteLRMaxN * 2;
-                } 
-                else {
-                    parachuteGamePiece.speedX += -parachuteLRInfluance;
-                }
+                else if (parachuteGamePiece.speedX >= parachuteLRMax.neutralE ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.neutralE;
+                };
                 break;
             case 1:  // eastwardly mild wind
-                if ( parachuteGamePiece.speedX >= parachuteLRMaxE1 ) {
-                    parachuteGamePiece.speedX = parachuteLRMaxE1;
+                parachuteGamePiece.speedX += -(parachuteLRInfluance + .125);
+                if ( parachuteGamePiece.speedX >= parachuteLRMax.east1Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.east1Max;
                 } 
-                else if (parachuteGamePiece.speedX <= (parachuteLRMaxE1 * 2) ) {
-                        parachuteGamePiece.speedX = (parachuteLRMaxE1 * 2);
-                } 
-                else {
-                    parachuteGamePiece.speedX += (parachuteLRInfluance + .125);
-                }
+                else if (parachuteGamePiece.speedX <= parachuteLRMax.east1Min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.east1Min;
+                };
                 break;
             case 2:  // eastwardly strong wind
-                if ( parachuteGamePiece.speedX >= parachuteLRMaxE2 ) {
-                    parachuteGamePiece.speedX = parachuteLRMaxE2;
+                parachuteGamePiece.speedX += -(parachuteLRInfluance + .25);
+                if ( parachuteGamePiece.speedX >= parachuteLRMax.east2Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.east2Max;
                 } 
-                else if (parachuteGamePiece.speedX <= (parachuteLRMaxE2 * 2) ) {
-                        parachuteGamePiece.speedX = (parachuteLRMaxE2 * 2);
-                } 
-                else {
-                    parachuteGamePiece.speedX += (parachuteLRInfluance + .25);
-                }
+                else if (parachuteGamePiece.speedX <= parachuteLRMax.east2Min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.east2Min;
+                };
                 break;
             default:
                 console.log (`Error in Move Left Wind Case`);
                 break;
-           }  //end case
-           console.log (`Para LSpdX: ${parachuteGamePiece.speedX}  windCur: ${windCurrent}`);
-      };  // end if jumperInAir and chutePulled
-    }
+           }  //end winfCurrent switch
+    };  // end if jumperInAir and chutePulled
+  } // end moveLeft fn
   
   function moveright() {
-      if ( jumperInAir && chutePulled ) {
-          parachuteGamePiece.speedX += parachuteLRInfluance;
-          console.log (`Para RSpdX: ${parachuteGamePiece.speedX}  windCur: ${windCurrent}`);
-
-      };
-  }
+    windCurrent = 2                                                   // <----------    remove!!
+    if ( jumperInAir && chutePulled ) {
+        console.log (`entering switchR: ${parachuteGamePiece.speedX} windCur: ${windCurrent}`);
+        switch (windCurrent) {
+            case -2:  // westwardly strong wind (negative numbers)
+                parachuteGamePiece.speedX += (parachuteLRInfluance + -.25);
+                if ( parachuteGamePiece.speedX <= parachuteLRMax.west2Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.west2Max;
+                    console.log (`in right west2Max`);
+                } 
+                if ( parachuteGamePiece.speedX >= parachuteLRMax.west2Min ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.west2Min;
+                    console.log (`in right west2min`);
+                };
+                break;
+            case -1:  // westwardly mild wind
+                parachuteGamePiece.speedX += (parachuteLRInfluance + -.125);
+                if ( parachuteGamePiece.speedX <= parachuteLRMax.west1Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.west1Max;
+                } 
+                else if (parachuteGamePiece.speedX >= parachuteLRMax.west1Min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.west1Min;
+                };
+                break;
+            case 0:   //no influance
+                parachuteGamePiece.speedX += parachuteLRInfluance;
+                if ( parachuteGamePiece.speedX <= parachuteLRMax.neutralW ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.neutralW;
+                } 
+                else if (parachuteGamePiece.speedX >= parachuteLRMax.neutralE ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.neutralE;
+                }; 
+                break;
+            case 1:  // eastwardly mild wind
+                parachuteGamePiece.speedX += (parachuteLRInfluance + .125);
+                if ( parachuteGamePiece.speedX >= parachuteLRMax.east1Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.east1Max;
+                } 
+                else if (parachuteGamePiece.speedX <= parachuteLRMax.east1Min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.east1Min;
+                }; 
+                break;
+            case 2:  // eastwardly strong wind
+                parachuteGamePiece.speedX += (parachuteLRInfluance + .25);
+                if ( parachuteGamePiece.speedX >= parachuteLRMax.east2Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.east2Max;
+                } 
+                else if (parachuteGamePiece.speedX <= parachuteLRMax.east2Min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.east2Min;
+                };
+                break;
+            default:
+                console.log (`Error in Move Right Wind Case`);
+                break;
+           }  //end case
+      }; // end if jumperInAir and chutePulled
+  } //end moveRight fn
 
   function reset() {
     planeGamePiece.x = 580;
