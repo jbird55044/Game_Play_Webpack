@@ -1,26 +1,42 @@
 console.log('webpack starterkit');
 
+//counters and holders
 let chutePulled = false;   // tracks when chute is pulled
 let jumperInAir = false;    // Tracks when leaves plane
-let gravityFreeFall = 1.75;   // bigger number faster fall
-let gravityChute = .75;   // bigger number faster fall
-let planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
-let parachuteLRInfluance = .2;  // bigger number, the more the chute can go L or R when pulled
-let parachuteLRMax = 1; // the maximum influance of parachute L or R when pulled
-let windCurrent = (Math.random() - .5);
-let windInfluance = 0;  // amount of change via random generator
-let windInfluanceMax = 1; // maximum wind gusts
+let windToloranceTimer = 0;  // counter
+let parachuteLRMax = 0; // holder changes in game play
 
+// letiables that adjust game play
+const gravityFreeFall = 1.75;   // bigger number faster fall
+const gravityChute = .75;   // bigger number faster fall
+const planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
+let   windCurrent = Math.floor(Math.random() * 5 ) - 2;  // 5 letiations; negative is West, 0 neutral, Pos is East
+const windChangeRate = 300;   // 0 to 100 rate of wind change.  0 Most Agressive, 100 most time between changes
+const parachuteLRInfluance = .2;  // bigger number, the more the chute can go L or R when pulled
+const parachuteLRMax = {   // fastest speeds allowed during varying winds
+    west2Max: -1.75,
+    west2Min: -.25,
+    west1Max: -.5,
+    west1Min: 1.25,
+    nuetralW: -1.5,
+    nuetralE: 1.5,
+    east1Min: -1.25,
+    east1Max: .5,
+    east2Min: .25,
+    east2Max: 1.75
+};
 
-var parachuteGamePiece;
-var planeGamePiece;
-var landingPadGamePiece;
-var abulanceGamePiece;
-var windSock;
+// game pieces
+let parachuteGamePiece;
+let planeGamePiece;
+let landingPadGamePiece;
+let abulanceGamePiece;
+let windSock;
 
 function startGame() {
     //let num = (Math.random()*2).toFixed(2);
-    let num = ((Math.random()) - .5).toFixed(3)
+    //let num = ((Math.random()) - .5).toFixed(3)
+    let num = Math.floor(Math.random() * 5 ) - 2;
     console.log (`Random Number: ${num}`);
 
 
@@ -30,12 +46,16 @@ function startGame() {
     landingPadx = (Math.floor(Math.random() * 500 ))
     console.log (`Landingpad x ${landingPadx}`);
     landingPadGamePiece = new component(50, 5, "green", landingPadx, 395);
-    windSock = new component(3, 60, "violet", 20, 340);
+    windSockW2 = new component(3, 60, "violet", 20, 340);
+    windSockW1 = new component(3, 60, "violet", 20, 340);
+    windSock0 = new component(3, 60, "violet", 20, 340);
+    windSockE1 = new component(3, 60, "violet", 20, 340);
+    windSockE2 = new component(3, 60, "violet", 20, 340);
     
     myGameArea.start();
 }
 
-var myGameArea = {
+let myGameArea = {
     canvas : document.createElement("canvas"),
     start : function() {
         this.canvas.width = 600;
@@ -114,38 +134,102 @@ function component(width, height, color, x, y) {
         parachuteGamePiece.speedX += planeInertiaInfluance;     //slow down initial plane inertia 
         if (parachuteGamePiece.speedX >= 0 ) console.log (`jumper verticle fall`);
     }; 
-
-    if ( jumperInAir && chutePulled && (windCurrent < windInfluanceMax) ) {
-         windInfluance = ((Math.random() - .5) / 100).toFixed(3);  //both  pos and neg numbers
-         windCurrent =+ windInfluance
-         parachuteGamePiece.speedX =+ windCurrent;
-         console.log (windInfluance);
-    };
-
+        
+    if ( windToloranceTimer > windChangeRate ) {
+        windCurrent = influanceWind(windCurrent);
+        windToloranceTimer = 0;  //reset to start counting again
+    }
+    windToloranceTimer += 1
+    // console.log (`Wind Current:  ${windCurrent}`);
+        
     myGameArea.clear();
     
     parachuteGamePiece.newPos();
     planeGamePiece.newPos();
     landingPadGamePiece.newPos();
     abulanceGamePiece.newPos();
-    windSock.newPos();
+    windSock0.newPos();
 
     parachuteGamePiece.update();
     planeGamePiece.update();
     landingPadGamePiece.update();
     abulanceGamePiece.update();
-    windSock.update();
+    windSock0.update();
   }
   
   function moveleft() {
-      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX > -parachuteLRMax ) {
-        parachuteGamePiece.speedX -= parachuteLRInfluance;      
-      };
+      if ( jumperInAir && chutePulled ) {
+          windCurrent = 2
+          console.log (`entering switch: ${parachuteGamePiece.speedX}`);
+        switch (windCurrent) {
+            case -2:  // westwardly strong wind (negative numbers)
+                if ( parachuteGamePiece.speedX <= parachuteLRMax.west2Max ) {
+                    parachuteGamePiece.speedX = parachuteLRMax.west2Max;
+                } 
+                else if (parachuteGamePiece.speedX >= parachuteLRMax.west2min ) {
+                        parachuteGamePiece.speedX = parachuteLRMax.west2min;
+                } 
+                else {
+                    parachuteGamePiece.speedX += (-parachuteLRInfluance + -.25);
+                }
+                break;
+            case -1:  // westwardly mild wind
+                if ( parachuteGamePiece.speedX <= parachuteLRMaxW1 ) {
+                    parachuteGamePiece.speedX = parachuteLRMaxW1;
+                } 
+                else if (parachuteGamePiece.speedX >= (parachuteLRMaxW1 * -2) ) {
+                        parachuteGamePiece.speedX = (parachuteLRMaxW1 * -2 );
+                } 
+                else {
+                    parachuteGamePiece.speedX += (-parachuteLRInfluance + -.125);
+                }
+                break;
+            case 0:   //no influance
+                if ( parachuteGamePiece.speedX <= parachuteLRMaxN * 2 ) {
+                    parachuteGamePiece.speedX = parachuteLRMaxN * 2;
+                } 
+                else if (parachuteGamePiece.speedX >= parachuteLRMaxN * 2 ) {
+                        parachuteGamePiece.speedX = parachuteLRMaxN * 2;
+                } 
+                else {
+                    parachuteGamePiece.speedX += -parachuteLRInfluance;
+                }
+                break;
+            case 1:  // eastwardly mild wind
+                if ( parachuteGamePiece.speedX >= parachuteLRMaxE1 ) {
+                    parachuteGamePiece.speedX = parachuteLRMaxE1;
+                } 
+                else if (parachuteGamePiece.speedX <= (parachuteLRMaxE1 * 2) ) {
+                        parachuteGamePiece.speedX = (parachuteLRMaxE1 * 2);
+                } 
+                else {
+                    parachuteGamePiece.speedX += (parachuteLRInfluance + .125);
+                }
+                break;
+            case 2:  // eastwardly strong wind
+                if ( parachuteGamePiece.speedX >= parachuteLRMaxE2 ) {
+                    parachuteGamePiece.speedX = parachuteLRMaxE2;
+                } 
+                else if (parachuteGamePiece.speedX <= (parachuteLRMaxE2 * 2) ) {
+                        parachuteGamePiece.speedX = (parachuteLRMaxE2 * 2);
+                } 
+                else {
+                    parachuteGamePiece.speedX += (parachuteLRInfluance + .25);
+                }
+                break;
+            default:
+                console.log (`Error in Move Left Wind Case`);
+                break;
+           }  //end case
+           console.log (`Para LSpdX: ${parachuteGamePiece.speedX}  windCur: ${windCurrent}`);
+      };  // end if jumperInAir and chutePulled
     }
   
   function moveright() {
-      if ( jumperInAir && chutePulled && parachuteGamePiece.speedX < parachuteLRMax ) {
+      if ( jumperInAir && chutePulled ) {
           parachuteGamePiece.speedX += parachuteLRInfluance;
+          console.log (`Para RSpdX: ${parachuteGamePiece.speedX}  windCur: ${windCurrent}`);
+
       };
   }
 
@@ -160,8 +244,28 @@ function component(width, height, color, x, y) {
     jumperInAir = false;
     landingPadx = (Math.floor(Math.random() * 500 ));
     landingPadGamePiece.x = landingPadx;
-    windCurrent = (Math.random() - .5);
+    windCurrent = Math.floor(Math.random() * 5 ) - 2;
   }
+
+  function influanceWind(current) {
+    let newWind = Math.floor(Math.random() * 5 ) - 2;
+    let windDiff = newWind - current
+    //console.log (`current ${current}, newWind: ${newWind}  windDiff: ${Math.abs(windDiff)}`);
+
+    if ( Math.abs(windDiff) === 1 ) {   // if difference of 1, update wind
+        current = newWind
+    };
+    if ( current > 2 ) {
+        return 2
+    } 
+    else if ( current < -2 ) {
+        return -2
+
+    }
+    else {
+        return current
+    };
+  } // end influanceWind fn
 
 
   function flyplane() {
