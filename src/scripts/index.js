@@ -2,6 +2,8 @@ console.log('webpack starterkit');
 
 //counters and holders
 let chutePulled = false;   // tracks when chute is pulled
+let chuteFullyDeployed = false;  //happens fixed time after pulled
+let chuteTimerSet = false;
 let jumperInAir = false;    // Tracks when leaves plane
 let windToloranceTimer = 9999999;  // counter (start large to invoke first wind)
 let letGoOfJump = false;    // checks for double push of jump via keyboard
@@ -13,6 +15,7 @@ let gameScoreAccumulator = 0;
 const screenUpdateInterval = 20;   // Alters screen update speed
 const gravityFreeFall = 1.75;   // bigger number faster fall
 const gravityChute = .75;   // bigger number faster fall
+const chuteOpeningTime = 1000; // time in mils
 const planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
 let   windCurrent = Math.floor(Math.random() * 5 ) - 2;  // 5 letiations; negative is West, 0 neutral, Pos is East
 const windChangeRate = 300;   // 0 to 100 rate of wind change.  0 Most Agressive, 100 most time between changes
@@ -91,6 +94,9 @@ let myGameArea = {
     },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+    stop : function() {
+        clearInterval(this.interval);
     }
 }
 
@@ -136,6 +142,32 @@ function component(width, height, color, x, y, text) {
         this.x += this.speedX;
         this.y += this.speedY; 
     } 
+    this.landedSafely = function(otherobj) {
+        var myleft = this.x;
+        var myright = this.x + (this.width);
+        var mytop = this.y;
+        var mybottom = this.y + (this.height);
+        var otherleft = otherobj.x;
+        var otherright = otherobj.x + (otherobj.width);
+        var othertop = otherobj.y;
+        var otherbottom = otherobj.y + (otherobj.height);
+        var landed = true;
+        if ((mybottom < othertop) ||
+        (mytop > otherbottom) ||
+        (myright < otherleft) ||
+        (myleft > otherright)) {
+          landed = false;
+        }
+        return landed;
+    }
+    this.splat = function(otherobj) {
+        var mybottom = this.y + (this.height);
+        let splatted = false;
+        if (mybottom < 1) {
+            splatted = true
+        }
+        return splatted;
+    }
 }
 
 function updateGameArea() {
@@ -148,6 +180,7 @@ function updateGameArea() {
     }; 
 
     if ( jumperInAir && !chutePulled ) {
+        
         if ( parachuteGamePiece.y.between(   1, 150) ) roundScore.text = scoreMatrix[1];
         if ( parachuteGamePiece.y.between( 151, 250) ) roundScore.text = scoreMatrix[2];
         if ( parachuteGamePiece.y.between( 251, 320) ) roundScore.text = scoreMatrix[3];
@@ -162,27 +195,49 @@ function updateGameArea() {
     windToloranceTimer += 1
     // console.log (`Wind Current:  ${windCurrent}`);
     
+    if ( chutePulled && !chuteFullyDeployed && !chuteTimerSet) {
+        chuteDeploymentTimer = Date.now();
+        chuteTimerSet = true;
+    }
+    
+    if (chutePulled && !chuteFullyDeployed && chuteTimerSet) {
+        if ((Date.now() - chuteDeploymentTimer) > chuteOpeningTime) {
+            chuteFullyDeployed = true;
+            parachuteGamePiece.fillStyle = 'green';
+        }
+    }
+
+    
     if (myGameArea.key && myGameArea.key == moveLeftKey) { moveleft()  }  // left arrow
     if (myGameArea.key && myGameArea.key == moveRightKey) { moveright() }  //right arrow
     if (myGameArea.key && myGameArea.key == flyPlaneKey) { flyplane() }  //G for Go (fly plane)
     if (myGameArea.key && myGameArea.key == resetKey) { reset() }  //R for Reset
     if (myGameArea.key && myGameArea.key == jumpKey) { jump() }  //press space
     
-    myGameArea.clear();
-    
-    roundScore.newPos();
-    gameScore.newPos();
-    parachuteGamePiece.newPos();
-    planeGamePiece.newPos();
-    landingPadGamePiece.newPos();
-    abulanceGamePiece.newPos();
-    
-    roundScore.update();
-    gameScore.update();
-    parachuteGamePiece.update();
-    planeGamePiece.update();
-    landingPadGamePiece.update();
-    abulanceGamePiece.update();
+    if ( chuteFullyDeployed && parachuteGamePiece.landedSafely(landingPadGamePiece)) {
+            gameScoreAccumulator += roundScore.text
+            reset();
+
+        } else if (parachuteGamePiece.splat()) {
+            // no score, reset
+            reset();
+        } else {
+        myGameArea.clear();
+        
+        roundScore.newPos();
+        gameScore.newPos();
+        parachuteGamePiece.newPos();
+        planeGamePiece.newPos();
+        landingPadGamePiece.newPos();
+        abulanceGamePiece.newPos();
+        
+        roundScore.update();
+        gameScore.update();
+        parachuteGamePiece.update();
+        planeGamePiece.update();
+        landingPadGamePiece.update();
+        abulanceGamePiece.update();
+    }
     
     switch (windCurrent) {    //update wind sock
         case -2:
