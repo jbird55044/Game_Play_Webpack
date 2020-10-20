@@ -1,7 +1,8 @@
 console.log('webpack starterkit');
+console.log (`!Vatti Rocks!`);
 
 // letiables that adjust game play
-const totalLifes = 5;
+const totalLifes = 2;
 const canvasY = 400;
 const canvasX = 600;
 const screenUpdateInterval = 20;   // Alters screen update speed
@@ -22,6 +23,7 @@ const parachuteLRMax = {   // fastest speeds allowed during varying winds
 };
 
 //counters and holders
+let gameRunning = false;
 let highestScore = 145000;
 let lifes = totalLifes;
 let splattedFlag = false;
@@ -31,7 +33,7 @@ let chuteFullyDeployed = false;  //happens fixed time after pulled
 let chuteTimerSet = false;
 let jumperInAir = false;    // Tracks when leaves plane
 let windToloranceTimer = 9999999;  // counter (start large to invoke first wind)
-let letGoOfJump = false;    // checks for double push of jump via keyboard
+let letGoOfJumpButton = false;    // checks for double push of jump via keyboard
 let firstChutePull = true;  // checks for first verse subsquent attempts at deploying chute
 let gameScoreAccumulator = 0;
 
@@ -41,7 +43,7 @@ let gameScoreAccumulator = 0;
 const moveLeftKey = 37; //left arrow
 const moveRightKey = 39; //left arrow
 const jumpKey = 32;  // space bar
-const flyPlaneKey = 71;  // G
+const goGameKey = 71;  // G
 const resetKey = 82;  // R
 
 
@@ -68,9 +70,8 @@ let highScoreGamePiece;
 function startGame() {
     //let num = (Math.random()*2).toFixed(2);
     //let num = ((Math.random()) - .5).toFixed(3)
-    let num = Math.floor(Math.random() * 5 ) - 2;
-    console.log (`Random Number: ${num}`);
-
+    //let num = Math.floor(Math.random() * 5 ) - 2;
+    //console.log (`Random Number: ${num}`);
 
     planeGamePiece = new component(30, 15, "blue", 580, 10);
     jumperGamePiece = new component(20, 30, "red", 580, 10);
@@ -94,6 +95,7 @@ function startGame() {
 
     
     myGameArea.start();
+
 }
 
 let myGameArea = {
@@ -110,7 +112,7 @@ let myGameArea = {
         window.addEventListener('keyup', function (e) {
             myGameArea.key = false;
                 if (e.keyCode == jumpKey) {
-                    letGoOfJump = true;
+                    letGoOfJumpButton = true;
                 }
           })
     },
@@ -133,10 +135,6 @@ function component(width, height, color, x, y) {
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
-
-
-// --------- auto locators
-
 
 
 // ---------  button control
@@ -230,7 +228,6 @@ function updateGameArea() {
         windToloranceTimer = 0;  //reset to start counting again
     }  //end of if
     windToloranceTimer += 1
-    // console.log (`Wind Current:  ${windCurrent}`);
     
     if ( chutePulled && !chuteFullyDeployed && !chuteTimerSet) {
         chuteDeploymentTimer = Date.now();
@@ -246,11 +243,10 @@ function updateGameArea() {
     
     if (myGameArea.key && myGameArea.key == moveLeftKey) { moveleft()  }  // left arrow
     if (myGameArea.key && myGameArea.key == moveRightKey) { moveright() }  //right arrow
-    if (myGameArea.key && myGameArea.key == flyPlaneKey) { flyplane() }  //G for Go (fly plane)
+    if (myGameArea.key && myGameArea.key == goGameKey) { goGame() }  //G for Go (fly plane)
     if (myGameArea.key && myGameArea.key == resetKey) { reset() }  //R for Reset
     if (myGameArea.key && myGameArea.key == jumpKey) { jump() }  //press space
     
-  
         myGameArea.clear();
              
         gameScoreGamePiece.newPos();
@@ -283,17 +279,20 @@ function updateGameArea() {
             splatMessage.newPos();
             splatMessage.update();
             truckPickup();
-        } else if (jumperGamePiece.splat()) {
+        } else if (jumperGamePiece.splat() || (!jumperInAir && planeGamePiece.x < -5 )) {
             splattedFlag = true;
-            //roundScoreGamePiece.text = "    0 "
-            //roundScoreGamePiece.x = landingPadGamePiece.x
-            splatMessage.text = '!! Splat !!'
+            roundScoreGamePiece.x = landingPadGamePiece.x
+            roundScoreGamePiece.text = "    0 "
+            roundScoreGamePiece.newPos();
+            roundScoreGamePiece.update(); 
+            if ( lifes > 1 ) {
+                splatMessage.text = '!! Splat !!'                
+            } else {
+                splatMessage.text = "Game Over"
+            };
             splatMessage.newPos();
             splatMessage.update();
-            //roundScoreGamePiece.newPos();
-            //roundScoreGamePiece.update(); 
             ambulancePickup()
-            //setTimeout (() => ambulancePickup() ,2000);
         };
 
         if ( chutePulled && !chuteFullyDeployed ) {
@@ -348,9 +347,9 @@ function updateGameArea() {
 }
 
 function moveleft() {
-      if ( jumperInAir && chutePulled ) {
+      if ( jumperInAir && chutePulled && !landedSafelyFlag ) {
         //windCurrent = -2                                                   // <----------    remove!!
-          console.log (`entering switchL: ${jumperGamePiece.speedX} windCur: ${windCurrent}`);
+        //  console.log (`entering switchL: ${jumperGamePiece.speedX} windCur: ${windCurrent}`);
         switch (windCurrent) {
             case -2:  // westwardly strong wind (negative numbers)
                 jumperGamePiece.speedX += (-parachuteLRInfluance);
@@ -394,8 +393,8 @@ function moveleft() {
   
   function moveright() {
     //windCurrent = -2                                                   // <----------    remove!!
-    if ( jumperInAir && chutePulled ) {
-        console.log (`entering switchR: ${jumperGamePiece.speedX} windCur: ${windCurrent}`);
+    if ( jumperInAir && chutePulled && !landedSafelyFlag ) {
+        //console.log (`entering switchR: ${jumperGamePiece.speedX} windCur: ${windCurrent}`);
         switch (windCurrent) {
             case -2:  // westwardly strong wind (negative numbers)
                 jumperGamePiece.speedX += (parachuteLRInfluance);
@@ -482,49 +481,54 @@ function moveleft() {
   } 
 
   function flyplane() {
-    let planeSpeed = -((Math.random()*2) +.5).toFixed(3);
-    planeGamePiece.speedX = planeSpeed
-    jumperGamePiece.x = planeGamePiece.x;
-    jumperGamePiece.speedX = planeGamePiece.speedX;
+        let planeSpeed = -((Math.random()*2) +.5).toFixed(3);
+        planeGamePiece.speedX = planeSpeed
+        jumperGamePiece.x = planeGamePiece.x;
+        jumperGamePiece.speedX = planeGamePiece.speedX;
   };
 
-  function jump() {
-    if ( jumperInAir && letGoOfJump ) {
-       chutePulled = true    // set w/ second push of button
-    };   
+    function jump() {
+        if ( jumperInAir && letGoOfJumpButton ) {
+        chutePulled = true    // set w/ second push of button
+        };   
 
-    jumperInAir = true;  
-    
-    if ( chutePulled && firstChutePull ) {
-        jumperGamePiece.speedY = gravityChute;
-        switch (windCurrent) {
-            case -2:
-                jumperGamePiece.speedX = parachuteLRMax.west2ChuteDefault
-                break;
-            case -1:
-                jumperGamePiece.speedX = parachuteLRMax.west1ChuteDefault
-                break;
-            case 0:
-                jumperGamePiece.speedX = parachuteLRMax.neutralChuteDefault
-                break;
-            case 1:
-                jumperGamePiece.speedX = parachuteLRMax.east1ChuteDefault
-                break;
-            case 2:
-                jumperGamePiece.speedX = parachuteLRMax.east2ChuteDefault
-                break;
-            default:
-                console.log (`Error in firstChutePulled case stmt`);
-        } // end firstPulledChute case
+        if ( planeGamePiece.speedX < 0 ) jumperInAir = true;  // plane must be moving
+         
+        if  ( planeGamePiece.speedX < 0 && !chutePulled ) {
+            jumperGamePiece.speedY = gravityFreeFall;
+        }
+        else if ( chutePulled && firstChutePull ) {
+            jumperGamePiece.speedY = gravityChute;
+            firstChutePull = false;
+            switch (windCurrent) {
+                case -2:
+                    jumperGamePiece.speedX = parachuteLRMax.west2ChuteDefault
+                    break;
+                case -1:
+                    jumperGamePiece.speedX = parachuteLRMax.west1ChuteDefault
+                    break;
+                case 0:
+                    jumperGamePiece.speedX = parachuteLRMax.neutralChuteDefault
+                    break;
+                case 1:
+                    jumperGamePiece.speedX = parachuteLRMax.east1ChuteDefault
+                    break;
+                case 2:
+                    jumperGamePiece.speedX = parachuteLRMax.east2ChuteDefault
+                    break;
+                default:
+                    console.log (`Error in firstChutePulled case stmt`);
+            } // end firstPulledChute case
+        }  
         
-        
-        //moveright(); //wiggle jumper to invoke wind influance
-        //moveleft(); //wiggle jumper to invoke wind influance
-    }  
-    else {
-        jumperGamePiece.speedY = gravityFreeFall;
     };
-};
+    
+    function goGame() {
+        if ( lifes > 0 && !gameRunning ) {
+            gameRunning = true;
+            flyplane();
+        }
+    }
 
     function reset() {
         if ( landedSafelyFlag ) {
@@ -535,9 +539,9 @@ function moveleft() {
             lifes -= 1
             lifesGamePiece.text = `Lifes: ${lifes}`;
             if ( lifes < 1 ) {
+                console.log (`Game Over`);
                 //end game
                 // check high score
-                myGameArea.stop;
             }  //the end
         };
         landedSafelyFlag = false;
@@ -560,8 +564,11 @@ function moveleft() {
         roundScoreGamePiece.x = landingPadx;
         roundScoreGamePiece.text = '! GO !';
         windCurrent = Math.floor(Math.random() * 5 ) - 2;
-        letGoOfJump = false;
+        letGoOfJumpButton = false;
         firstChutePull = true;
         chuteTimerSet = false;
         chuteFullyDeployed = false;
+
+        if ( lifes > 0 ) flyplane();
+        
     };
