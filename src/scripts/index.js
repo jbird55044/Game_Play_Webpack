@@ -1,17 +1,7 @@
 console.log('webpack starterkit');
 
-//counters and holders
-let chutePulled = false;   // tracks when chute is pulled
-let chuteFullyDeployed = false;  //happens fixed time after pulled
-let chuteTimerSet = false;
-let jumperInAir = false;    // Tracks when leaves plane
-let windToloranceTimer = 9999999;  // counter (start large to invoke first wind)
-let letGoOfJump = false;    // checks for double push of jump via keyboard
-let firstChutePull = true;  // checks for first verse subsquent attempts at deploying chute
-let gameScoreAccumulator = 0;
-
-
 // letiables that adjust game play
+const totalLifes = 5;
 const canvasY = 400;
 const canvasX = 600;
 const screenUpdateInterval = 20;   // Alters screen update speed
@@ -30,6 +20,22 @@ const parachuteLRMax = {   // fastest speeds allowed during varying winds
     east1Max: 1,        east1Min: -.5,      east1ChuteDefault: .25,
     east2Max: 1.75,     east2Min: .25,      east2ChuteDefault: .5
 };
+
+//counters and holders
+let highestScore = 145000;
+let lifes = totalLifes;
+let splattedFlag = false;
+let landedSafelyFlag = false;
+let chutePulled = false;   // tracks when chute is pulled
+let chuteFullyDeployed = false;  //happens fixed time after pulled
+let chuteTimerSet = false;
+let jumperInAir = false;    // Tracks when leaves plane
+let windToloranceTimer = 9999999;  // counter (start large to invoke first wind)
+let letGoOfJump = false;    // checks for double push of jump via keyboard
+let firstChutePull = true;  // checks for first verse subsquent attempts at deploying chute
+let gameScoreAccumulator = 0;
+
+
 
 //keyboard influance
 const moveLeftKey = 37; //left arrow
@@ -56,6 +62,8 @@ let windSockE2;
 let roundScoreGamePiece;
 let gameScoreGamePiece;
 let splatMessage;
+let lifesGamePiece;
+let highScoreGamePiece;
 
 function startGame() {
     //let num = (Math.random()*2).toFixed(2);
@@ -68,13 +76,15 @@ function startGame() {
     jumperGamePiece = new component(20, 30, "red", 580, 10);
     paraChuteGamePieceGreen = new component(20, 6, "green", 580, 10);
     paraChuteGamePieceYellow = new component(20, 6, "yellow", 580, 10);
-    ambulanceGamePiece = new component(25, 15, "yellow", 600, 380);
-    redCrossGamePiece = new component("30px", "Consolas", "red", 603, 390, "+");
-    windowGamePiece = new component(5, 5, "black", 603, 380);
+    ambulanceGamePiece = new component(35, 15, "yellow", 600, 380);
+    redCrossGamePiece = new component("30px", "Consolas", "red", 600, 395, "+");
+    windowGamePiece = new component(10, 10, "black", 600, 380);
     landingPadx = (Math.floor(Math.random() * 500 ))
     landingPadGamePiece = new component(60, 5, "green", landingPadx, 395);
     roundScoreGamePiece = new component("20px", "Consolas", "black", landingPadx, 380, "! GO !");
-    gameScoreGamePiece = new component("20px", "Consolas", "black", 3, 15, "Game Score");
+    gameScoreGamePiece = new component("15px", "Consolas", "black", 3, 15, `Score: ${gameScoreAccumulator}`);
+    lifesGamePiece = new component("15px", "Consolas", "black", (canvasX/2 - 50), 15, `Lifes: ${totalLifes}`);
+    highScoreGamePiece = new component("15px", "Consolas", "black", (canvasX - 200), 15, `High Score: ${highestScore}`);
     splatMessage = new component("120px", "Consolas", "red", (canvasX / 20), (canvasY /2), "!! Splat !!");
     windSockW2 = new component(40, 10, "red", 0, 340);
     windSockW1 = new component(20, 10, "violet", 20, 340);
@@ -240,14 +250,7 @@ function updateGameArea() {
     if (myGameArea.key && myGameArea.key == resetKey) { reset() }  //R for Reset
     if (myGameArea.key && myGameArea.key == jumpKey) { jump() }  //press space
     
-    if ( chuteFullyDeployed && jumperGamePiece.landedSafely(landingPadGamePiece)) {
-        gameScoreAccumulator += roundScoreGamePiece.text
-        gameScoreGamePiece.text = gameScoreAccumulator
-        splatMessage.text = 'Landed'
-        splatMessage.newPos();
-        splatMessage.update();
-        truckPickup();
-    } else {
+  
         myGameArea.clear();
              
         gameScoreGamePiece.newPos();
@@ -258,6 +261,8 @@ function updateGameArea() {
         redCrossGamePiece.newPos();
         windowGamePiece.newPos();
         roundScoreGamePiece.newPos();
+        lifesGamePiece.newPos();
+        highScoreGamePiece.newPos();
         
         gameScoreGamePiece.update();
         jumperGamePiece.update();
@@ -266,15 +271,27 @@ function updateGameArea() {
         ambulanceGamePiece.update();
         redCrossGamePiece.update();
         windowGamePiece.update();
-        roundScoreGamePiece.update(); 
+        roundScoreGamePiece.update();
+        lifesGamePiece.update(); 
+        highScoreGamePiece.update();
         
-        if (jumperGamePiece.splat()) {
-            roundScoreGamePiece.text = "    0 "
-            roundScoreGamePiece.x = landingPadGamePiece.x
+        if ( chuteFullyDeployed && jumperGamePiece.landedSafely(landingPadGamePiece)) {
+            landedSafelyFlag = true
+            jumperGamePiece.speedY = 0;
+            jumperGamePiece.speedX = 0;
+            splatMessage.text = 'Landed'
             splatMessage.newPos();
             splatMessage.update();
-            roundScoreGamePiece.newPos();
-            roundScoreGamePiece.update(); 
+            truckPickup();
+        } else if (jumperGamePiece.splat()) {
+            splattedFlag = true;
+            //roundScoreGamePiece.text = "    0 "
+            //roundScoreGamePiece.x = landingPadGamePiece.x
+            splatMessage.text = '!! Splat !!'
+            splatMessage.newPos();
+            splatMessage.update();
+            //roundScoreGamePiece.newPos();
+            //roundScoreGamePiece.update(); 
             ambulancePickup()
             //setTimeout (() => ambulancePickup() ,2000);
         };
@@ -291,9 +308,9 @@ function updateGameArea() {
             paraChuteGamePieceGreen.y = jumperGamePiece.y
             paraChuteGamePieceGreen.newPos();
             paraChuteGamePieceGreen.update();
-        }
+        };
     
-    }
+    
     
     switch (windCurrent) {    //update wind sock
         case -2:
@@ -449,16 +466,16 @@ function moveleft() {
   }
   
   function ambulancePickup() {
-    ambulanceGamePiece.speedX -= .5;
-    redCrossGamePiece.x = ambulanceGamePiece.x + 3;
+    ambulanceGamePiece.speedX -= .25;
+    redCrossGamePiece.x = ambulanceGamePiece.x;
  if ( ambulanceGamePiece.x < 1 ) {
       reset()
   };
 } 
 
   function truckPickup() {
-        ambulanceGamePiece.speedX -= .5;
-        windowGamePiece.x = ambulanceGamePiece.x;
+        ambulanceGamePiece.speedX -= .25;
+        windowGamePiece.x = ambulanceGamePiece.x - 10;
      if ( ambulanceGamePiece.x < 1 ) {
           reset()
       };
@@ -510,9 +527,25 @@ function moveleft() {
 };
 
     function reset() {
-        ambulanceGamePiece.x = 570;
+        if ( landedSafelyFlag ) {
+            gameScoreAccumulator += roundScoreGamePiece.text
+            gameScoreGamePiece.text = `Score: ${gameScoreAccumulator}`
+        };
+        if ( splattedFlag ) {
+            lifes -= 1
+            lifesGamePiece.text = `Lifes: ${lifes}`;
+            if ( lifes < 1 ) {
+                //end game
+                // check high score
+                myGameArea.stop;
+            }  //the end
+        };
+        landedSafelyFlag = false;
+        splattedFlag = false;
+        ambulanceGamePiece.x = 600;
         ambulanceGamePiece.speedX = 0;
         redCrossGamePiece.x = ambulanceGamePiece.x + 3;
+        windowGamePiece.x = ambulanceGamePiece.x;
         planeGamePiece.x = 580;
         planeGamePiece.speedX = 0;
         jumperGamePiece.x = 580;
