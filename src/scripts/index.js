@@ -43,7 +43,9 @@ let windToloranceTimer = 9999999;  // counter (start large to invoke first wind)
 let letGoOfJumpButton = false;    // checks for double push of jump via keyboard
 let firstChutePull = true;  // checks for first verse subsquent attempts at deploying chute
 let gameScoreAccumulator = 0;
+let playerIpData = [];
 const apiUrl = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";  //api
+const ipAddressUrl = "https://api.ipdata.co?api-key=35d15246450fb408a65988c1716786efdb6e46661fe6da4e8b950a8d"  //ip address getter
 
 
 
@@ -110,7 +112,26 @@ function startGame() {
     windSockE1 = new component(20, 10, "violet", 40, 340);
     windSockE2 = new component(40, 10, "red", 40, 340);
 
-    highestScore = getTenthHighScore();
+    getTenthHighScore();
+  
+    // get IP address info 
+    let requestIp = new XMLHttpRequest();
+    requestIp.open('GET', ipAddressUrl);
+    requestIp.setRequestHeader('Accept', 'application/json');
+    
+    requestIp.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        //console.log(this.responseText);
+        stageHighScorePayload(this.responseText)
+      }
+    };
+    
+    requestIp.send();
+    function stageHighScorePayload (data) {
+        playerIpData = JSON.parse(data);
+    }
+
+    // start game
     myGameArea.start();
 
 }
@@ -530,7 +551,7 @@ function moveleft() {
     };
 
     function goGame() {
-        gameOver();    //   <-----------------------REMOVE
+        //gameOver();    //   <-----------------------REMOVE (used for testing)
 
         if ( lifes > 0 && !gameRunning ) {
             gameRunning = true;
@@ -563,7 +584,6 @@ function moveleft() {
     function updateLeaderboard() {               
         let apiData= [];
         const ul = document.getElementById('leaderBoardUl');
-        console.log (`InLeaderboard fn`);
         fetch (apiUrl)
             .then (response => {
                 return response.json();
@@ -647,10 +667,8 @@ function moveleft() {
 
     function gameOver(gameScore) {
         
-        //myGameArea.clear();
-        //document.body.innerHTML = '';
         console.log (`In Game Over`);
-        gameScoreAccumulator = 1310;   //  <--------------- remove
+        //gameScoreAccumulator = 1320;   //  <--------------- remove
         
         const scoreMessage = document.getElementById("scoreMessage");
         const captureInitialsButton = document.getElementById("captureInitialsButton");
@@ -664,6 +682,7 @@ function moveleft() {
         restartGameDiv.style.visibility = "visible";
 
        
+        updateLeaderboard();   //update the board via async API routine
         scoreMessage.scrollIntoView(true);  //scroll down the page
 
         if (gameScoreAccumulator > highestScore) {
@@ -675,9 +694,6 @@ function moveleft() {
             captureInitialsButton.style.visibility = "hidden";
 
         };
-
-        updateLeaderboard();   //update the board via async API routine
-
 
     };  //end of gameOver fn
 
@@ -695,8 +711,8 @@ function moveleft() {
     
     captureInitialsButton.addEventListener('click', function() {
         let initials = grabInitials()
-        let highScorePayload = {initials: initials, score: gameScoreAccumulator, ipAddress: '555.123.555.123'}
-        console.log (`payload: `, highScorePayload);
+        let highScorePayload = {initials: initials, score: gameScoreAccumulator, ipAddress: playerIpData.ip, city: playerIpData.city, region: playerIpData.region, asn: playerIpData.asn.name};
+        //console.log (`payload: `, highScorePayload);
         postApi (highScorePayload);
     })
     
@@ -711,14 +727,16 @@ function moveleft() {
                 body: JSON.stringify({
                     initials: data.initials,
                     score: data.score,
-                    ipAddress: data.ipAddress
+                    ipAddress: data.ipAddress,
+                    city: data.city,
+                    region: data.region,
+                    asn: data.asn
                 }),
             });
             
             const res = await req.json();
-    
             // Log success message
-            console.log(res);                
+            //console.log(res);                
         } catch(err) {
             console.error(`ERROR: ${err}`);
         }
