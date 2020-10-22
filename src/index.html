@@ -1,30 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Game play</title>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Parachute - Jim Bird</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="./styles/style.css" />
+   </head>
 
-<style>
-  canvas {
-      border:1px solid #d3d3d3;
-      background-color: #f1f1f1;
-  }
-</style>
+<body onload="startGame()" id="body1">
 
-</head>
+  
+  
+  <div class="gameButtons" id="gameButtonsDiv" style="visibility:visible">
+    <br>
+    <button onclick="moveleft()">LEFT-----</button>
+    <button onclick="moveright()">-----RIGHT</button>
+    <br>
+    <button onclick="jump()"> - Jump! --- PULL! --- </button>
+    <br>
+    <br>
+    <button onclick="goGame()">>> Start Game <<</button>
+    <br>  
+    </button>
+  </div>
+  
+    <div class="header" id="headerDiv" style="visibility:hidden" >
+      <h1 class="center">Game Over!</h1>
+      <p class="italic">Let's See if you got High Score . . .</p>
+      <p id="scoreMessage">score message here</p>
+      <button id="captureInitialsButton">Click to Enter Initials</button>
+    </div>
+  
+  
+    <div class="highScore" id="highScoreDiv" style="visibility:hidden">
+      <h2>The Top 10 Leaderboard is:</h2>
+      <p id="leaderBoardUl"></pid></p>
+      
+      <h3> Can you make it on the Leaderboard?? </h3>
+    </div>
+    
+    <div class="restart" id="restartGameDiv" style="visibility:hidden">
+      <button id="restartGameButton"> >>>> Restart Game <<<<< </button>
+    </div>
 
-<body onload="startGame()">
-
-  <br>
-  <button onclick="moveleft()">LEFT-----</button>
-  <button onclick="moveright()">-----RIGHT</button>
-  <br>
-  <button onclick="jump()"> - Jump! --- PULL! --- </button>
-  <br>
-  <br>
-  <button onclick="goGame()">>> Start Game <<</button>
-  <br>
 
   <script src="scripts/index.js"></script>
 </body>

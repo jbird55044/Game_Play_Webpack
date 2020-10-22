@@ -1,6 +1,12 @@
 console.log('webpack starterkit');
 console.log (`!Vatti Rocks!`);
 
+//HTML IDs
+const gameButtonsDiv = document.getElementById("gameButtonsDiv");
+const headerDiv = document.getElementById("headerDiv");
+const highScoreDiv = document.getElementById("highScoreDiv");
+const restartGameDiv = document.getElementById("restartGameDiv");
+
 // letiables that adjust game play
 const totalLifes = 2;
 const canvasY = 400;
@@ -24,7 +30,7 @@ const parachuteLRMax = {   // fastest speeds allowed during varying winds
 
 //counters and holders
 let gameRunning = false;
-let highestScore = 145000;
+let highestScore = 7500;
 let lifes = totalLifes;
 let splattedFlag = false;
 let landedSafelyFlag = false;
@@ -73,6 +79,13 @@ function startGame() {
     //let num = Math.floor(Math.random() * 5 ) - 2;
     //console.log (`Random Number: ${num}`);
 
+    //setting up HTML
+    gameButtonsDiv.style.visibility ="visible"; 
+    headerDiv.style.visibility= "hidden";
+    highScoreDiv.style.visibility = "hidden";
+    restartGameDiv.style.visibility = "hidden";
+
+    //Game pieces
     planeGamePiece = new component(30, 15, "blue", 580, 10);
     jumperGamePiece = new component(20, 30, "red", 580, 10);
     paraChuteGamePieceGreen = new component(20, 6, "green", 580, 10);
@@ -84,7 +97,7 @@ function startGame() {
     landingPadGamePiece = new component(60, 5, "green", landingPadx, 395);
     roundScoreGamePiece = new component("20px", "Consolas", "black", landingPadx, 380, "! GO !");
     gameScoreGamePiece = new component("15px", "Consolas", "black", 3, 15, `Score: ${gameScoreAccumulator}`);
-    lifesGamePiece = new component("15px", "Consolas", "black", (canvasX/2 - 50), 15, `Lifes: ${totalLifes}`);
+    lifesGamePiece = new component("15px", "Consolas", "black", (canvasX/2 - 50), 15, `Lives: ${totalLifes}`);
     highScoreGamePiece = new component("15px", "Consolas", "black", (canvasX - 200), 15, `High Score: ${highestScore}`);
     splatMessage = new component("120px", "Consolas", "red", (canvasX / 20), (canvasY /2), "!! Splat !!");
     windSockW2 = new component(40, 10, "red", 0, 340);
@@ -104,7 +117,9 @@ let myGameArea = {
         this.canvas.width = canvasX;
         this.canvas.height = canvasY;
         this.context = this.canvas.getContext("2d");
+        this.canvas.id = "canvas1"
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        console.log (this.canvas);
         this.interval = setInterval(updateGameArea, screenUpdateInterval);
         window.addEventListener('keydown', function (e) {
             myGameArea.key = e.keyCode;
@@ -123,19 +138,6 @@ let myGameArea = {
         clearInterval(this.interval);
     }
 }
-
-function component(width, height, color, x, y) {
-    this.width = width;
-    this.height = height;
-    this.x = x;
-    this.y = y;    
-    this.update = function(){
-        ctx = myGameArea.context;
-        ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-    }
-}
-
 
 // ---------  button control
 
@@ -522,14 +524,16 @@ function moveleft() {
         }  
         
     };
-    
+
     function goGame() {
+        gameOver();    //   <-----------------------REMOVE
+
         if ( lifes > 0 && !gameRunning ) {
             gameRunning = true;
             flyplane();
         }
     }
-
+   
     function reset() {
         if ( landedSafelyFlag ) {
             gameScoreAccumulator += roundScoreGamePiece.text
@@ -540,6 +544,7 @@ function moveleft() {
             lifesGamePiece.text = `Lifes: ${lifes}`;
             if ( lifes < 1 ) {
                 console.log (`Game Over`);
+                gameOver (gameScoreAccumulator);
                 //end game
                 // check high score
             }  //the end
@@ -572,3 +577,130 @@ function moveleft() {
         if ( lifes > 0 ) flyplane();
         
     };
+
+    function gameOver(gameScore) {
+        
+        //myGameArea.clear();
+        //document.body.innerHTML = '';
+        console.log (`In Game Over`);
+        gameScoreAccumulator = 25000;   //  <--------------- remove
+        
+        const scoreMessage = document.getElementById("scoreMessage");
+        const captureInitialsButton = document.getElementById("captureInitialsButton");
+        const restartGameButton = document.getElementById("restartGameButton");
+        const highScoreDiv = document.getElementById("highScoreDiv");
+        const leaderBoardUl = document.getElementById("leaderBoardUl");
+
+        gameButtonsDiv.style.visibility = "hidden";
+        headerDiv.style.visibility = "visible";
+        highScoreDiv.style.visibility = "visible";
+        restartGameDiv.style.visibility = "visible";
+
+       
+
+        scoreMessage.scrollIntoView(true);
+
+        if (gameScoreAccumulator > highestScore) {
+            scoreMessage.textContent = `Holy Cow - ${gameScoreAccumulator} is a high score`; // Create a text element
+            captureInitialsButton.style.visibility = "visible";
+        }
+        else {
+            scoreMessage.textContent = `So sorry - score of ${gameScoreAccumulator} is too low for any honey`; // Create a text element 
+            captureInitialsButton.style.visibility = "hidden";
+
+        };
+
+        
+        (function() {
+            let apiData= [];
+            const ul = document.getElementById('leaderBoardUl');
+            const url = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";
+            console.log (`InLeaderboard fn`);
+            fetch (url)
+                .then (response => {
+                    return response.json();
+                })
+                .then (apiData => {
+                    let i=0;
+                    let bufferLeaderboard =[];
+                    const leaderBoardUl = document.getElementById("leaderBoardUl")
+                    for ( i=0; i< apiData.length; i += 1 ) {
+                        bufferLeaderboard.push({initials: apiData[i].initials, score: apiData[i].score})
+                    }
+                    bufferLeaderboard.sort(function(a, b){
+                        return b.score - a.score
+                    });
+                    
+                    let maxLength = 0;
+                    if (bufferLeaderboard.length > 10) {
+                        maxLength = 10
+                    } else {
+                        maxLength = bufferLeaderboard.length
+                    } 
+                    
+                    let html = "<table border='1|1'>";
+                    for (let i = 0; i < maxLength; i++) {
+                        html+="<tr>";
+                        html+="<td>"+bufferLeaderboard[i].initials+"</td>";
+                        html+="<td>"+bufferLeaderboard[i].score+"</td>";
+                        html+="</tr>";
+                    }
+                    html+="</table>";
+                    leaderBoardUl.innerHTML = html;
+
+                    // for ( i=0; i< maxLength; i += 1 ) {
+                    //     leaderBoardUl.innerHTML = "<li>" + bufferLeaderboard[i].initials + ", " + bufferLeaderboard[i].score + "</li>";
+                    //     leaderBoardUl.innerHTML = "<br>"
+                    // }
+                    console.log (`bufferLeaderboard` , bufferLeaderboard);
+                    
+                });
+            return apiData
+            ;    
+        })();
+        
+        
+
+        // for (element in leaderBoard) {
+        //     leaderBoardUl.writeln(element);
+        // };
+               
+        function grabInitials() {
+            console.log (`grabbing intiials`);
+            let person = prompt("Enter Initials:", "ABC");
+            if (person == null || person == "") {
+              person = "XXX";
+            } 
+            return person;
+        }
+    
+
+        captureInitialsButton.addEventListener('click', function() {
+            grabInitials ();
+            console.log (`captureInitialsButton button Pressed`); 
+        })
+
+        restartGameButton.addEventListener('click', function() {
+            console.log (`restartGameButton button clicked`);
+            startGame()
+        })
+
+
+/*               
+        headerDiv.createTextNode("h2"); // Create the H1 element 
+        let scoreMessage = '';
+        if (gameScoreAccumulator > highestScore) {
+            scoreMessage = document.createTextNode(`Wholly Cow - ${gameScoreAccumulator} is a high score at `); // Create a text element 
+        }
+        else {
+            scoreMessage = document.createTextNode(`So sorry - score of ${gameScoreAccumulator} is too low for any honey`); // Create a text element 
+        };
+                scoreHeader.appendChild(scoreMessage); // Append the text node to the H1 element 
+        document.body.appendChild(scoreHeaderDiv); // Ap
+           
+  */ 
+
+
+
+
+    }
