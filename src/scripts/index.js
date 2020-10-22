@@ -6,9 +6,10 @@ const gameButtonsDiv = document.getElementById("gameButtonsDiv");
 const headerDiv = document.getElementById("headerDiv");
 const highScoreDiv = document.getElementById("highScoreDiv");
 const restartGameDiv = document.getElementById("restartGameDiv");
+const body1 = document.getElementById("body1");
 
 // letiables that adjust game play
-const totalLifes = 2;
+const totalLifes = 5;
 const canvasY = 400;
 const canvasX = 600;
 const screenUpdateInterval = 20;   // Alters screen update speed
@@ -29,8 +30,8 @@ const parachuteLRMax = {   // fastest speeds allowed during varying winds
 };
 
 //counters and holders
+let highestScore = 0;
 let gameRunning = false;
-let highestScore = 7500;
 let lifes = totalLifes;
 let splattedFlag = false;
 let landedSafelyFlag = false;
@@ -84,6 +85,7 @@ function startGame() {
     headerDiv.style.visibility= "hidden";
     highScoreDiv.style.visibility = "hidden";
     restartGameDiv.style.visibility = "hidden";
+    body1.scrollIntoView(true);
 
     //Game pieces
     planeGamePiece = new component(30, 15, "blue", 580, 10);
@@ -106,7 +108,8 @@ function startGame() {
     windSockE1 = new component(20, 10, "violet", 40, 340);
     windSockE2 = new component(40, 10, "red", 40, 340);
 
-    
+    highestScore = getTenthHighScore();
+    console.log (`Recorded High score after fn call`, highestScore);
     myGameArea.start();
 
 }
@@ -534,6 +537,29 @@ function moveleft() {
         }
     }
    
+    function getTenthHighScore() {
+        let apiData= [];
+        let tenthBuffer= [];
+        const url = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";
+        fetch (url)
+            .then (response => {
+                return response.json();
+            })
+            .then (apiData => {
+                apiData.sort(function(a, b){
+                    return b.score - a.score
+                });
+                Object.prototype.highestScore = apiData[9].score
+                console.log (`10th Score in then`, apiData[9].score );
+                setScore (apiData[9].score);
+            });
+    };
+
+    function setScore(value) {
+        highestScore = value;
+        console.log (`inside SetScore - value: ${value}   highestScore: ${highestScore}`);
+    };
+
     function reset() {
         if ( landedSafelyFlag ) {
             gameScoreAccumulator += roundScoreGamePiece.text
@@ -583,7 +609,7 @@ function moveleft() {
         //myGameArea.clear();
         //document.body.innerHTML = '';
         console.log (`In Game Over`);
-        gameScoreAccumulator = 25000;   //  <--------------- remove
+        gameScoreAccumulator = 1260;   //  <--------------- remove
         
         const scoreMessage = document.getElementById("scoreMessage");
         const captureInitialsButton = document.getElementById("captureInitialsButton");
@@ -611,7 +637,7 @@ function moveleft() {
         };
 
         
-        (function() {
+        (function() {               
             let apiData= [];
             const ul = document.getElementById('leaderBoardUl');
             const url = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";
@@ -648,12 +674,7 @@ function moveleft() {
                     html+="</table>";
                     leaderBoardUl.innerHTML = html;
 
-                    // for ( i=0; i< maxLength; i += 1 ) {
-                    //     leaderBoardUl.innerHTML = "<li>" + bufferLeaderboard[i].initials + ", " + bufferLeaderboard[i].score + "</li>";
-                    //     leaderBoardUl.innerHTML = "<br>"
-                    // }
-                    console.log (`bufferLeaderboard` , bufferLeaderboard);
-                    
+
                 });
             return apiData
             ;    
