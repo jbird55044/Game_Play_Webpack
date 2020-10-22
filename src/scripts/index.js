@@ -43,6 +43,8 @@ let windToloranceTimer = 9999999;  // counter (start large to invoke first wind)
 let letGoOfJumpButton = false;    // checks for double push of jump via keyboard
 let firstChutePull = true;  // checks for first verse subsquent attempts at deploying chute
 let gameScoreAccumulator = 0;
+const apiUrl = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";  //api
+
 
 
 
@@ -109,7 +111,6 @@ function startGame() {
     windSockE2 = new component(40, 10, "red", 40, 340);
 
     highestScore = getTenthHighScore();
-    console.log (`Recorded High score after fn call`, highestScore);
     myGameArea.start();
 
 }
@@ -540,8 +541,7 @@ function moveleft() {
     function getTenthHighScore() {
         let apiData= [];
         let tenthBuffer= [];
-        const url = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";
-        fetch (url)
+        fetch (apiUrl)
             .then (response => {
                 return response.json();
             })
@@ -549,16 +549,59 @@ function moveleft() {
                 apiData.sort(function(a, b){
                     return b.score - a.score
                 });
-                Object.prototype.highestScore = apiData[9].score
-                console.log (`10th Score in then`, apiData[9].score );
-                setScore (apiData[9].score);
+                let index = 9;
+                if ( apiData.length < 10 ) index = (apiData.length - 1)
+                setScore (apiData[index].score);  //needed due to async call to API
             });
     };
 
-    function setScore(value) {
+    function setScore(value) {   //needed due to async call to API
         highestScore = value;
-        console.log (`inside SetScore - value: ${value}   highestScore: ${highestScore}`);
     };
+
+
+    function updateLeaderboard() {               
+        let apiData= [];
+        const ul = document.getElementById('leaderBoardUl');
+        console.log (`InLeaderboard fn`);
+        fetch (apiUrl)
+            .then (response => {
+                return response.json();
+            })
+            .then (apiData => {
+                let i=0;
+                let bufferLeaderboard =[];
+                const leaderBoardUl = document.getElementById("leaderBoardUl")
+                for ( i=0; i< apiData.length; i += 1 ) {
+                    bufferLeaderboard.push({initials: apiData[i].initials, score: apiData[i].score})
+                }
+                bufferLeaderboard.sort(function(a, b){
+                    return b.score - a.score
+                });
+                
+                let maxLength = 0;
+                if (bufferLeaderboard.length > 10) {
+                    maxLength = 10
+                } else {
+                    maxLength = bufferLeaderboard.length
+                } 
+                
+                let html = "<table border='1|1'>";
+                for (let i = 0; i < maxLength; i++) {
+                    html+="<tr>";
+                    html+="<td>"+bufferLeaderboard[i].initials+"</td>";
+                    html+="<td>"+bufferLeaderboard[i].score+"</td>";
+                    html+="</tr>";
+                }
+                html+="</table>";
+                leaderBoardUl.innerHTML = html;
+
+
+            });
+        return apiData
+        ;    
+    };
+    
 
     function reset() {
         if ( landedSafelyFlag ) {
@@ -571,8 +614,6 @@ function moveleft() {
             if ( lifes < 1 ) {
                 console.log (`Game Over`);
                 gameOver (gameScoreAccumulator);
-                //end game
-                // check high score
             }  //the end
         };
         landedSafelyFlag = false;
@@ -609,7 +650,7 @@ function moveleft() {
         //myGameArea.clear();
         //document.body.innerHTML = '';
         console.log (`In Game Over`);
-        gameScoreAccumulator = 1260;   //  <--------------- remove
+        gameScoreAccumulator = 1310;   //  <--------------- remove
         
         const scoreMessage = document.getElementById("scoreMessage");
         const captureInitialsButton = document.getElementById("captureInitialsButton");
@@ -623,8 +664,7 @@ function moveleft() {
         restartGameDiv.style.visibility = "visible";
 
        
-
-        scoreMessage.scrollIntoView(true);
+        scoreMessage.scrollIntoView(true);  //scroll down the page
 
         if (gameScoreAccumulator > highestScore) {
             scoreMessage.textContent = `Holy Cow - ${gameScoreAccumulator} is a high score`; // Create a text element
@@ -636,92 +676,56 @@ function moveleft() {
 
         };
 
-        
-        (function() {               
-            let apiData= [];
-            const ul = document.getElementById('leaderBoardUl');
-            const url = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";
-            console.log (`InLeaderboard fn`);
-            fetch (url)
-                .then (response => {
-                    return response.json();
-                })
-                .then (apiData => {
-                    let i=0;
-                    let bufferLeaderboard =[];
-                    const leaderBoardUl = document.getElementById("leaderBoardUl")
-                    for ( i=0; i< apiData.length; i += 1 ) {
-                        bufferLeaderboard.push({initials: apiData[i].initials, score: apiData[i].score})
-                    }
-                    bufferLeaderboard.sort(function(a, b){
-                        return b.score - a.score
-                    });
-                    
-                    let maxLength = 0;
-                    if (bufferLeaderboard.length > 10) {
-                        maxLength = 10
-                    } else {
-                        maxLength = bufferLeaderboard.length
-                    } 
-                    
-                    let html = "<table border='1|1'>";
-                    for (let i = 0; i < maxLength; i++) {
-                        html+="<tr>";
-                        html+="<td>"+bufferLeaderboard[i].initials+"</td>";
-                        html+="<td>"+bufferLeaderboard[i].score+"</td>";
-                        html+="</tr>";
-                    }
-                    html+="</table>";
-                    leaderBoardUl.innerHTML = html;
+        updateLeaderboard();   //update the board via async API routine
 
 
-                });
-            return apiData
-            ;    
-        })();
-        
-        
+    };  //end of gameOver fn
 
-        // for (element in leaderBoard) {
-        //     leaderBoardUl.writeln(element);
-        // };
-               
-        function grabInitials() {
-            console.log (`grabbing intiials`);
-            let person = prompt("Enter Initials:", "ABC");
-            if (person == null || person == "") {
-              person = "XXX";
-            } 
-            return person;
+    function grabInitials() {
+        let maxLength = 3;
+        let userData = false;
+        while (userData == false || (userData != null && userData.length > maxLength)) {
+        userData = window.prompt(`Please enter ${maxLength} initials (example: ABC)`);
         }
-    
-
-        captureInitialsButton.addEventListener('click', function() {
-            grabInitials ();
-            console.log (`captureInitialsButton button Pressed`); 
-        })
-
-        restartGameButton.addEventListener('click', function() {
-            console.log (`restartGameButton button clicked`);
-            startGame()
-        })
-
-
-/*               
-        headerDiv.createTextNode("h2"); // Create the H1 element 
-        let scoreMessage = '';
-        if (gameScoreAccumulator > highestScore) {
-            scoreMessage = document.createTextNode(`Wholly Cow - ${gameScoreAccumulator} is a high score at `); // Create a text element 
-        }
-        else {
-            scoreMessage = document.createTextNode(`So sorry - score of ${gameScoreAccumulator} is too low for any honey`); // Create a text element 
-        };
-                scoreHeader.appendChild(scoreMessage); // Append the text node to the H1 element 
-        document.body.appendChild(scoreHeaderDiv); // Ap
-           
-  */ 
-
-
-
-
+        if (userData == "" || userData.toUpperCase() == "ASS" ) {
+            userData = "XXX";
+        } 
+        return userData.toUpperCase();
     }
+    
+    captureInitialsButton.addEventListener('click', function() {
+        let initials = grabInitials()
+        let highScorePayload = {initials: initials, score: gameScoreAccumulator, ipAddress: '555.123.555.123'}
+        console.log (`payload: `, highScorePayload);
+        postApi (highScorePayload);
+    })
+    
+    async function postApi(data) {
+        try {
+            // Create request to api service
+            const req = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type':'application/json' },
+                
+                // format the data
+                body: JSON.stringify({
+                    initials: data.initials,
+                    score: data.score,
+                    ipAddress: data.ipAddress
+                }),
+            });
+            
+            const res = await req.json();
+    
+            // Log success message
+            console.log(res);                
+        } catch(err) {
+            console.error(`ERROR: ${err}`);
+        }
+    };
+
+
+    restartGameButton.addEventListener('click', function() {
+        console.log (`restartGameButton button clicked`);
+        startGame()
+    })
