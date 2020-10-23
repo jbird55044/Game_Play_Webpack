@@ -7,9 +7,13 @@ const headerDiv = document.getElementById("headerDiv");
 const highScoreDiv = document.getElementById("highScoreDiv");
 const restartGameDiv = document.getElementById("restartGameDiv");
 const body1 = document.getElementById("body1");
+const jumpButton = document.getElementById("jumpButton");
+const moveLeftButton = document.getElementById("moveLeftButton");
+const moveRightButton = document.getElementById("moveRightButton");
+const goGameButton = document.getElementById("goGameButton");
 
 // setiables that adjust game play
-const totalLifes = 5;
+const totalLifes = 3;
 const canvasY = 400;
 const canvasX = 600;
 const screenUpdateInterval = 20;   // Alters screen update speed
@@ -47,7 +51,7 @@ let firstChutePull = true;  // checks for first verse subsquent attempts at depl
 let gameScoreAccumulator = 0;
 let playerIpData = [];
 const apiUrl = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";  //api
-const ipAddressUrl = "https://api.ipdata.co?api-key=35d15246450fb408a65988c1716786efdb6e46661fe6da4e8b950a8d"  //ip address getter
+const ipAddressUrl = "https://api.ipdata.co?api-key=35d15246450fb408a65988c1716786efdb6e46661fe6da4e8b950a8d";  //ip address getter
 
 
 
@@ -135,7 +139,6 @@ function startGame() {
 
     // start game
     myGameArea.start();
-
 }
 
 let myGameArea = {
@@ -158,6 +161,19 @@ let myGameArea = {
                     //console.log (`let go of jump`);
                 }
           })
+        jumpButton.addEventListener('click', function() {
+            letGoOfJumpButton = true;
+            jump();
+        })
+        moveLeftButton.addEventListener('click', function() {
+            moveLeft();
+        })
+        moveRightButton.addEventListener('click', function() {
+            moveRight();
+        })
+        goGameButton.addEventListener('click', function() {
+            goGame();
+        })
     },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -276,8 +292,8 @@ function updateGameArea() {
     }
 
     
-    if (myGameArea.key && myGameArea.key == moveLeftKey) { moveleft()  }  // left arrow
-    if (myGameArea.key && myGameArea.key == moveRightKey) { moveright() }  //right arrow
+    if (myGameArea.key && myGameArea.key == moveLeftKey) { moveLeft()  }  // left arrow
+    if (myGameArea.key && myGameArea.key == moveRightKey) { moveRight() }  //right arrow
     if (myGameArea.key && myGameArea.key == goGameKey) { goGame() }  //G for Go (fly plane)
     if (myGameArea.key && myGameArea.key == resetKey) { reset() }  //R for Reset
     if (myGameArea.key && myGameArea.key == jumpKey) { jump() }  //press space
@@ -384,7 +400,7 @@ function updateGameArea() {
     };  //end of wind switch
 }
 
-function moveleft() {
+function moveLeft() {
       if ( jumperInAir && chutePulled && !landedSafelyFlag ) {
         //windCurrent = -2                                                   // <----------    remove!!
         //  console.log (`entering switchL: ${jumperGamePiece.speedX} windCur: ${windCurrent}`);
@@ -429,7 +445,7 @@ function moveleft() {
     };  // end if jumperInAir and chutePulled
   } // end moveLeft fn
   
-  function moveright() {
+  function moveRight() {
     //windCurrent = -2                                                   // <----------    remove!!
     if ( jumperInAir && chutePulled && !landedSafelyFlag ) {
         //console.log (`entering switchR: ${jumperGamePiece.speedX} windCur: ${windCurrent}`);
