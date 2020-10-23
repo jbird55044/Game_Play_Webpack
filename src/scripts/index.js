@@ -30,7 +30,7 @@ const parachuteLRMax = {   // fastest speeds allowed during varying winds
 };
 
 //counters and holders
-let highestScore = 0;
+let highScore = 0;
 let gameRunning = false;
 let lifes = totalLifes;
 let splattedFlag = false;
@@ -104,7 +104,7 @@ function startGame() {
     roundScoreGamePiece = new component("20px", "Consolas", "black", landingPadx, 380, "! GO !");
     gameScoreGamePiece = new component("15px", "Consolas", "black", 3, 15, `Score: ${gameScoreAccumulator}`);
     lifesGamePiece = new component("15px", "Consolas", "black", (canvasX/2 - 50), 15, `Lives: ${totalLifes}`);
-    highScoreGamePiece = new component("15px", "Consolas", "black", (canvasX - 200), 15, `High Score: ${highestScore}`);
+    highScoreGamePiece = new component("15px", "Consolas", "black", (canvasX - 200), 15, `High Score: ${highScore}`);
     splatMessage = new component("120px", "Consolas", "red", (canvasX / 20), (canvasY /2), "!! Splat !!");
     windSockW2 = new component(40, 10, "red", 0, 340);
     windSockW1 = new component(20, 10, "violet", 20, 340);
@@ -153,6 +153,7 @@ let myGameArea = {
             myGameArea.key = false;
                 if (e.keyCode == jumpKey) {
                     letGoOfJumpButton = true;
+                    console.log (`let go of jump`);
                 }
           })
     },
@@ -230,22 +231,27 @@ function updateGameArea() {
         
         if ( jumperGamePiece.y.between(   1, 150) ) {
             roundScoreGamePiece.text = scoreMatrix[1];
+            roundScore = scoreMatrix[1];
             landingPadGamePiece.width = 60;
         }
         if ( jumperGamePiece.y.between( 151, 250) ) {
             roundScoreGamePiece.text = scoreMatrix[2];
+            roundScore = scoreMatrix[2];
             landingPadGamePiece.width = 50;
         }
         if ( jumperGamePiece.y.between( 251, 300) ) {
             roundScoreGamePiece.text = scoreMatrix[3];
+            roundScore = scoreMatrix[3];
             landingPadGamePiece.width = 40;
         }
         if ( jumperGamePiece.y.between( 301, 350) ) {
             roundScoreGamePiece.text = scoreMatrix[4];
+            roundScore = scoreMatrix[4];
             landingPadGamePiece.width = 38;
         }
         if ( jumperGamePiece.y.between( 350, 400) ) {
             roundScoreGamePiece.text = scoreMatrix[5];
+            roundScore = scoreMatrix[5];
             landingPadGamePiece.width = 36;
         };
     };
@@ -298,18 +304,21 @@ function updateGameArea() {
         lifesGamePiece.update(); 
         highScoreGamePiece.update();
         
-        if ( chuteFullyDeployed && jumperGamePiece.landedSafely(landingPadGamePiece)) {
-            landedSafelyFlag = true
+        if ( !splattedFlag && chuteFullyDeployed && jumperGamePiece.landedSafely(landingPadGamePiece)) {
+            jumperInAir = false;
+            landedSafelyFlag = true;
             jumperGamePiece.speedY = 0;
             jumperGamePiece.speedX = 0;
             splatMessage.text = 'Landed'
             splatMessage.newPos();
             splatMessage.update();
             truckPickup();
-        } else if (jumperGamePiece.splat() || (!jumperInAir && planeGamePiece.x < -5 )) {
+        } else if (!landedSafelyFlag && (jumperGamePiece.splat() || (!jumperInAir && planeGamePiece.x < -5 ))) {
+            jumperInAir = false;
             splattedFlag = true;
+            roundScore = 0;
             roundScoreGamePiece.x = landingPadGamePiece.x
-            roundScoreGamePiece.text = "    0 "
+            roundScoreGamePiece.text = " zero "
             roundScoreGamePiece.newPos();
             roundScoreGamePiece.update(); 
             if ( lifes > 1 ) {
@@ -517,9 +526,10 @@ function moveleft() {
     function jump() {
         if ( jumperInAir && letGoOfJumpButton ) {
         chutePulled = true    // set w/ second push of button
+        letGoOfJumpButton = false;
         };   
-
-        if ( planeGamePiece.speedX < 0 ) jumperInAir = true;  // plane must be moving
+    
+        if ( planeGamePiece.speedX < 0 ) jumperInAir = true;  // plane must be moving to set jumperInAir
          
         if  ( planeGamePiece.speedX < 0 && !chutePulled ) {
             jumperGamePiece.speedY = gravityFreeFall;
@@ -547,7 +557,6 @@ function moveleft() {
                     console.log (`Error in firstChutePulled case stmt`);
             } // end firstPulledChute case
         }  
-        
     };
 
     function goGame() {
@@ -577,7 +586,9 @@ function moveleft() {
     };
 
     function setScore(value) {   //needed due to async call to API
-        highestScore = value;
+        highScore = value;
+        highScoreGamePiece.text = `High Score: ${value}`;
+        console.log (`highScore: ${value}`);
     };
 
 
@@ -625,7 +636,8 @@ function moveleft() {
 
     function reset() {
         if ( landedSafelyFlag ) {
-            gameScoreAccumulator += roundScoreGamePiece.text
+            gameScoreAccumulator += roundScore
+            Math.round (gameScoreAccumulator);
             gameScoreGamePiece.text = `Score: ${gameScoreAccumulator}`
         };
         if ( splattedFlag ) {
@@ -683,9 +695,10 @@ function moveleft() {
 
        
         updateLeaderboard();   //update the board via async API routine
-        scoreMessage.scrollIntoView(true);  //scroll down the page
+        
+     
 
-        if (gameScoreAccumulator > highestScore) {
+        if (gameScoreAccumulator > highScore) {
             scoreMessage.textContent = `Holy Cow - ${gameScoreAccumulator} is a high score`; // Create a text element
             captureInitialsButton.style.visibility = "visible";
         }
@@ -706,6 +719,7 @@ function moveleft() {
         if (userData == "" || userData.toUpperCase() == "ASS" ) {
             userData = "XXX";
         } 
+        captureInitialsButton.style.visibility = "hidden";
         return userData.toUpperCase();
     }
     
@@ -745,5 +759,5 @@ function moveleft() {
 
     restartGameButton.addEventListener('click', function() {
         console.log (`restartGameButton button clicked`);
-        startGame()
+        location.reload()
     })
