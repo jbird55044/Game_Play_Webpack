@@ -8,7 +8,7 @@ const highScoreDiv = document.getElementById("highScoreDiv");
 const restartGameDiv = document.getElementById("restartGameDiv");
 const body1 = document.getElementById("body1");
 
-// letiables that adjust game play
+// setiables that adjust game play
 const totalLifes = 5;
 const canvasY = 400;
 const canvasX = 600;
@@ -17,6 +17,8 @@ const gravityFreeFall = 1.75;   // bigger number faster fall
 const gravityChute = .75;   // bigger number faster fall
 const chuteOpeningTime = 1250; // time in millisecs
 const planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
+const planeMinimumSpeed = 1.1;
+const planeMaximumSpeed = 2.8;
 let   windCurrent = Math.floor(Math.random() * 5 ) - 2;  // 5 letiations; negative is West, 0 neutral, Pos is East
 const windChangeRate = 300;   // 0 to 100 rate of wind change.  0 Most Agressive, 100 most time between changes
 const parachuteLRInfluance = .175;  // bigger number, the more the chute can go L or R when pulled
@@ -153,7 +155,7 @@ let myGameArea = {
             myGameArea.key = false;
                 if (e.keyCode == jumpKey) {
                     letGoOfJumpButton = true;
-                    console.log (`let go of jump`);
+                    //console.log (`let go of jump`);
                 }
           })
     },
@@ -209,7 +211,7 @@ function component(width, height, color, x, y, text) {
         return landed;
     }
     this.splat = function() {
-        var mybottom = this.y + (this.height);
+        var mybottom = this.y + (this.height) + (landingPadGamePiece.height - 1);
         let splatted = false;
         if (mybottom > canvasY) {
             splatted = true
@@ -517,7 +519,9 @@ function moveleft() {
   } 
 
   function flyplane() {
-        let planeSpeed = -((Math.random()*2) +.5).toFixed(3);
+        //let planeSpeed = -((Math.random()*2) +.5).toFixed(3);
+        planeSpeed = -((Math.random() * (planeMaximumSpeed - planeMinimumSpeed))+ planeMinimumSpeed).toFixed(3)
+        console.log (`PlaneSpeed`, planeSpeed);
         planeGamePiece.speedX = planeSpeed
         jumperGamePiece.x = planeGamePiece.x;
         jumperGamePiece.speedX = planeGamePiece.speedX;
@@ -679,7 +683,7 @@ function moveleft() {
 
     function gameOver(gameScore) {
         
-        console.log (`In Game Over`);
+        //console.log (`In Game Over`);
         //gameScoreAccumulator = 1320;   //  <--------------- remove
         
         const scoreMessage = document.getElementById("scoreMessage");
