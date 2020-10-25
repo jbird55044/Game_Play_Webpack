@@ -111,7 +111,7 @@ function startGame() {
     gameScoreGamePiece = new component("15px", "Consolas", "black", 3, 15, `Score: ${gameScoreAccumulator}`);
     lifesGamePiece = new component("15px", "Consolas", "black", (canvasX/2 - 50), 15, `Lives: ${totalLifes}`);
     highScoreGamePiece = new component("15px", "Consolas", "black", (canvasX - 200), 15, `High Score: ${highScore}`);
-    splatMessage = new component("120px", "Consolas", "red", (canvasX / 20), (canvasY /2), "!! Splat !!");
+    splatMessage = new component("100px", "Consolas", "red", (canvasX / 20), (canvasY /2), "!! Splat !!");
     windSockW2 = new component(40, 10, "red", 0, 340);
     windSockW1 = new component(20, 10, "violet", 20, 340);
     windSock0 = new component(3, 60, "violet", 40, 340);
@@ -135,6 +135,8 @@ function startGame() {
     requestIp.send();
     function stageHighScorePayload (data) {
         playerIpData = JSON.parse(data);
+        //console.log (`raw data`, data);
+        //console.log (`JSON Parse`, playerIpData);
     }
 
     // start game
@@ -165,10 +167,10 @@ let myGameArea = {
             letGoOfJumpButton = true;
             jump();
         })
-        moveLeftButton.addEventListener('click', function() {
+        moveLeftButton.addEventListener('mousedown', function() {
             moveLeft();
         })
-        moveRightButton.addEventListener('click', function() {
+        moveRightButton.addEventListener('mousedown', function() {
             moveRight();
         })
         goGameButton.addEventListener('click', function() {
