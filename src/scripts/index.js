@@ -17,11 +17,8 @@ const totalLifes = 3;
 const screenUpdateInterval = 20;   // Alters screen update speed
 const chuteOpeningTime = 1250; // time in millisecs
 const planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
-const planeMinimumSpeed = 1.1;
-const planeMaximumSpeed = 2.8;
 let   windCurrent = randomNumber(-2,2,0)  // 5 variations; negative is West, 0 neutral, Pos is East
 const windChangeRate = 300;   // 0 to 500 rate of wind change.  0 Most Agressive, 100 most time between changes
-const parachuteLRInfluance = .175;  // bigger number, the more the chute can go L or R when pulled
 const scoreMatrix = [120, 220, 340, 550, 680];
 const parachuteLRMax = {   // fastest speeds allowed during varying winds
     west2Max: -1.75,    west2Min: -.25,     west2ChuteDefault: -.5,
@@ -70,8 +67,11 @@ let windSockFlagW2 = 0;
 let windowGamePieceWH = 0;
 let landingPadGamePieceH = 0;
 let landingPadGamePieceW = 0;
-let gravityFreeFall = 0;   // bigger number faster fall
-let gravityChute = 0;   // bigger number faster fall
+let gravityFreeFall = 0;   
+let gravityChute = 0;   
+let planeMinimumSpeed = 0; 
+let planeMaximumSpeed = 0;
+let parachuteLRInfluance = 0;
 
 
 
@@ -137,6 +137,9 @@ function canvasSizeLarge () {
     landingPadGamePieceW = 80;
     gravityFreeFall = 3.50;   // bigger number faster fall
     gravityChute = 1.75; // bigger number faster fall
+    planeMinimumSpeed = -2.20; // negative fly west.  Bigger integer goes faster  9 sec target
+    planeMaximumSpeed = -4.0;  // 5 sec target
+    parachuteLRInfluance = .175  // bigger number, the more the chute can go L or R when pulled
     startGame();
 };
 
@@ -168,6 +171,9 @@ function canvasSizeMedium () {
     landingPadGamePieceW = 70;
     gravityFreeFall = 2.70;   // bigger number faster fall
     gravityChute = 1.35; // bigger number faster fall
+    planeMinimumSpeed = -1.75; // negative fly west.  Bigger integer goes faster  9 sec target
+    planeMaximumSpeed = -3.20;  // 5 sec target
+    parachuteLRInfluance = .175  // bigger number, the more the chute can go L or R when pulled
     startGame();
 };
 
@@ -199,6 +205,9 @@ function canvasSizeSmall () {
     landingPadGamePieceW = 60;
     gravityFreeFall = 1.75;   // bigger number faster fall
     gravityChute = .88; // bigger number faster fall
+    planeMinimumSpeed = -1.30; // negative fly west.  Bigger integer goes faster  9 sec target
+    planeMaximumSpeed = -2.35;  // 5 sec target
+    parachuteLRInfluance = .175  // bigger number, the more the chute can go L or R when pulled
     startGame();
 };
 
@@ -666,7 +675,7 @@ function moveLeft() {
 
   function flyplane() {
         //let planeSpeed = -((Math.random()*2) +.5).toFixed(3);
-        planeSpeed = -((Math.random() * (planeMaximumSpeed - planeMinimumSpeed))+ planeMinimumSpeed).toFixed(3)
+        planeSpeed=randomNumber(planeMaximumSpeed, planeMinimumSpeed, 3);
         console.log (`PlaneSpeed`, planeSpeed);
         planeGamePiece.speedX = planeSpeed
         jumperGamePiece.x = planeGamePiece.x;
