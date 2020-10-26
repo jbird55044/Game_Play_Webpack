@@ -12,10 +12,8 @@ const moveLeftButton = document.getElementById("moveLeftButton");
 const moveRightButton = document.getElementById("moveRightButton");
 const goGameButton = document.getElementById("goGameButton");
 
-// setiables that adjust game play
+// setiables that adjust game play (for all size canvases)
 const totalLifes = 3;
-const canvasY = 400;
-const canvasX = 600;
 const screenUpdateInterval = 20;   // Alters screen update speed
 const gravityFreeFall = 1.75;   // bigger number faster fall
 const gravityChute = .75;   // bigger number faster fall
@@ -23,8 +21,8 @@ const chuteOpeningTime = 1250; // time in millisecs
 const planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
 const planeMinimumSpeed = 1.1;
 const planeMaximumSpeed = 2.8;
-let   windCurrent = Math.floor(Math.random() * 5 ) - 2;  // 5 letiations; negative is West, 0 neutral, Pos is East
-const windChangeRate = 300;   // 0 to 100 rate of wind change.  0 Most Agressive, 100 most time between changes
+let   windCurrent = randomNumber(-2,2,0)  // 5 variations; negative is West, 0 neutral, Pos is East
+const windChangeRate = 300;   // 0 to 500 rate of wind change.  0 Most Agressive, 100 most time between changes
 const parachuteLRInfluance = .175;  // bigger number, the more the chute can go L or R when pulled
 const scoreMatrix = [120, 220, 340, 550, 680];
 const parachuteLRMax = {   // fastest speeds allowed during varying winds
@@ -36,6 +34,9 @@ const parachuteLRMax = {   // fastest speeds allowed during varying winds
 };
 
 //counters and holders
+let canvasX = 0;   //size of canvas set in setup fns
+let canvasY = 0;
+let canvasSize = null;
 let highScore = 0;
 let gameRunning = false;
 let lifes = totalLifes;
@@ -50,6 +51,30 @@ let letGoOfJumpButton = false;    // checks for double push of jump via keyboard
 let firstChutePull = true;  // checks for first verse subsquent attempts at deploying chute
 let gameScoreAccumulator = 0;
 let playerIpData = [];
+let planeGamePieceW = 0;
+let planeGamePieceH = 0;
+let jumperGamePieceW = 0;
+let jumperGamePieceH = 0;
+let splatMessageH = '';
+let ambulanceGamePieceW = 0;
+let ambulanceGamePieceH = 0; 
+let headerFontSize = '';
+let redCrossGamePieceH = '';
+let headerFontX = 0;
+let paraChuteGamePieceGreenW = 0;
+let paraChuteGamePieceGreenH = 0;
+let paraChuteGamePieceYellowW = 0;
+let paraChuteGamePieceYellowH = 0;
+let windSockPoleH = 0;
+let windSockFlagH = 0;
+let windSockPoleX = 0;
+let windSockFlagW2 = 0;
+let windowGamePieceWH = 0;
+let landingPadGamePieceH = 0;
+let landingPadGamePieceW = 0;
+
+
+
 const apiUrl = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";  //api
 const ipAddressUrl = "https://api.ipdata.co?api-key=35d15246450fb408a65988c1716786efdb6e46661fe6da4e8b950a8d";  //ip address getter
 
@@ -84,60 +109,168 @@ let splatMessage;
 let lifesGamePiece;
 let highScoreGamePiece;
 
+function canvasSizeLarge () {
+    canvasSize = 'large';
+    canvasX = 1024;
+    canvasY = 768;
+    startGame();
+};
+
+function canvasSizeMedium () {
+    canvasSize = 'medium';
+    canvasX = 800;
+    canvasY = 600;
+    startGame();
+};
+
+function canvasSizeSmall () {
+    canvasSize = 'small';
+    canvasX = 600;
+    canvasY = 400;
+    startGame();
+};
+
+
+
+
 function startGame() {
     //let num = (Math.random()*2).toFixed(2);
     //let num = ((Math.random()) - .5).toFixed(3)
     //let num = Math.floor(Math.random() * 5 ) - 2;
     //console.log (`Random Number: ${num}`);
-
+    
     //setting up HTML
     gameButtonsDiv.style.visibility ="visible"; 
     headerDiv.style.visibility= "hidden";
     highScoreDiv.style.visibility = "hidden";
     restartGameDiv.style.visibility = "hidden";
     body1.scrollIntoView(true);
+    
+    
+    //Gamepiece sizing
+    switch (canvasSize) {
+        case 'large':  
+            planeGamePieceW = 54;
+            planeGamePieceH = 28;
+            jumperGamePieceW = 30;
+            jumperGamePieceH = 40;
+            paraChuteGamePieceGreenW = jumperGamePieceW;
+            paraChuteGamePieceGreenH = 12;
+            paraChuteGamePieceYellowW = jumperGamePieceW;
+            paraChuteGamePieceYellowH = 12;
+            splatMessageH = '140px'
+            headerFontSize = "25px"
+            redCrossGamePieceH = '40px'
+            ambulanceGamePieceW = 58;
+            ambulanceGamePieceH = 28;
+            windowGamePieceWH = 14;
+            headerFontX = parseInt(headerFontSize);
+            windSockPoleH = 90;
+            windSockPoleW = 7;
+            windSockPoleX = 60;
+            windSockFlagH = 18;
+            windSockFlagW2 = 60;
+            landingPadGamePieceH = 9;
+            landingPadGamePieceW = 80;
+            break;
 
+        case 'medium': 
+            planeGamePieceW = 40;
+            planeGamePieceH = 22;
+            jumperGamePieceW = 25;
+            jumperGamePieceH = 35;
+            paraChuteGamePieceGreenW = jumperGamePieceW;
+            paraChuteGamePieceGreenH = 9;
+            paraChuteGamePieceYellowW = jumperGamePieceW;
+            paraChuteGamePieceYellowH = 9;
+            splatMessageH = '120px'
+            redCrossGamePieceH = '30px'
+            ambulanceGamePieceW = 44;
+            ambulanceGamePieceH = 22;
+            windowGamePieceWH = 12;
+            headerFontSize = "20px"
+            headerFontX = parseInt(headerFontSize);
+            windSockPoleH = 75;
+            windSockPoleW = 5;
+            windSockPoleX = 50;
+            windSockFlagH = 14;
+            windSockFlagW2 = 50;
+            landingPadGamePieceH = 7;
+            landingPadGamePieceW = 70;
+            break;
+        case 'small':  
+            planeGamePieceW = 30;
+            planeGamePieceH = 15;
+            jumperGamePieceW = 20;
+            jumperGamePieceH = 30;
+            paraChuteGamePieceGreenW = jumperGamePieceW;
+            paraChuteGamePieceGreenH = 6;
+            paraChuteGamePieceYellowW = jumperGamePieceW;
+            paraChuteGamePieceYellowH = 6;
+            splatMessageH = '100px'
+            redCrossGamePieceH = '20px'
+            ambulanceGamePieceW = 35;
+            ambulanceGamePieceH = 15;
+            windowGamePieceWH = 10;
+            headerFontSize = "15px"
+            headerFontX = parseInt(headerFontSize);
+            windSockPoleH = 60;
+            windSockPoleW = 3;
+            windSockPoleX = 40;
+            windSockFlagH = 10;
+            windSockFlagW2 = 40;
+            landingPadGamePieceH = 5;
+            landingPadGamePieceW = 60;
+            break;
+        default:
+            console.log (`Error in sizing switch stmt`);
+    };
+    
     //Game pieces
-    planeGamePiece = new component(30, 15, "blue", 580, 10);
-    jumperGamePiece = new component(20, 30, "red", 580, 10);
-    paraChuteGamePieceGreen = new component(20, 6, "green", 580, 10);
-    paraChuteGamePieceYellow = new component(20, 6, "yellow", 580, 10);
-    ambulanceGamePiece = new component(35, 15, "yellow", 600, 380);
-    redCrossGamePiece = new component("30px", "Consolas", "red", 600, 395, "+");
-    windowGamePiece = new component(10, 10, "black", 600, 380);
-    landingPadx = (Math.floor(Math.random() * 500 ))
-    landingPadGamePiece = new component(60, 5, "green", landingPadx, 395);
-    roundScoreGamePiece = new component("20px", "Consolas", "black", landingPadx, 380, "! GO !");
-    gameScoreGamePiece = new component("15px", "Consolas", "black", 3, 15, `Score: ${gameScoreAccumulator}`);
-    lifesGamePiece = new component("15px", "Consolas", "black", (canvasX/2 - 50), 15, `Lives: ${totalLifes}`);
-    highScoreGamePiece = new component("15px", "Consolas", "black", (canvasX - 200), 15, `High Score: ${highScore}`);
-    splatMessage = new component("100px", "Consolas", "red", (canvasX / 20), (canvasY /2), "!! Splat !!");
-    windSockW2 = new component(40, 10, "red", 0, 340);
-    windSockW1 = new component(20, 10, "violet", 20, 340);
-    windSock0 = new component(3, 60, "violet", 40, 340);
-    windSockE1 = new component(20, 10, "violet", 40, 340);
-    windSockE2 = new component(40, 10, "red", 40, 340);
+    console.log (`plane size`, planeGamePieceH, planeGamePieceW, typeof jumperGamePieceH);
 
+    planeGamePiece = new component(planeGamePieceW, planeGamePieceH, "blue", canvasX-20, headerFontX+2);
+    jumperGamePiece = new component(jumperGamePieceW, jumperGamePieceH, "red", canvasX-20, headerFontX+2);
+    paraChuteGamePieceGreen = new component(paraChuteGamePieceGreenW, paraChuteGamePieceGreenH, "green", canvasX-20, headerFontX+2);
+    paraChuteGamePieceYellow = new component(paraChuteGamePieceYellowW, paraChuteGamePieceYellowH, "yellow", canvasX-20, headerFontX+2);
+    ambulanceGamePiece = new component(ambulanceGamePieceW, ambulanceGamePieceH, "yellow", canvasX, canvasY-20);
+    redCrossGamePiece = new component(redCrossGamePieceH, "Consolas", "red", (ambulanceGamePiece.x + ((ambulanceGamePieceW / 2) - 4)), canvasY, "+");
+    windowGamePiece = new component(windowGamePieceWH, windowGamePieceWH, "black", ambulanceGamePiece.x, canvasY-(ambulanceGamePieceH-(windowGamePieceWH/2)));
+    landingPadX = randomNumber(5, canvasX - (canvasX/2), 0);  // first time land left side of board
+    landingPadGamePiece = new component(landingPadGamePieceW, landingPadGamePieceH, "green", landingPadX, canvasY - 7);
+    roundScoreGamePiece = new component(headerFontSize, "Consolas", "black", landingPadX, canvasY-20, "! GO !");
+    gameScoreGamePiece = new component(headerFontSize, "Consolas", "black", 3, headerFontX, `Score: ${gameScoreAccumulator}`);
+    lifesGamePiece = new component(headerFontSize, "Consolas", "black", (canvasX/2 - 50), headerFontX, `Lives: ${totalLifes}`);
+    highScoreGamePiece = new component(headerFontSize, "Consolas", "black", (canvasX - 200), headerFontX, `High Score: ${highScore}`);
+    splatMessage = new component(splatMessageH, "Consolas", "red", (canvasX / 20), (canvasY /2), "!! Splat !!");
+    windSockW2 = new component(windSockFlagW2, windSockFlagH, "red", windSockPoleX - (windSockFlagW2), canvasY-windSockPoleH);
+    windSockW1 = new component(windSockFlagW2 / 2, windSockFlagH, "violet", windSockPoleX - (windSockFlagW2/2), canvasY-windSockPoleH);
+    windSock0 = new component(windSockPoleW, windSockPoleH, "violet", windSockPoleX, canvasY-windSockPoleH);
+    windSockE1 = new component(windSockFlagW2 /2, windSockFlagH, "violet", windSockPoleX, canvasY-windSockPoleH);
+    windSockE2 = new component(windSockFlagW2, windSockFlagH, "red", windSockPoleX, canvasY-windSockPoleH);
+    
+    
+    
     getTenthHighScore();
   
     // get IP address info 
-    let requestIp = new XMLHttpRequest();
-    requestIp.open('GET', ipAddressUrl);
-    requestIp.setRequestHeader('Accept', 'application/json');
+    // let requestIp = new XMLHttpRequest();
+    // requestIp.open('GET', ipAddressUrl);
+    // requestIp.setRequestHeader('Accept', 'application/json');
     
-    requestIp.onreadystatechange = function () {
-      if (this.readyState === 4) {
-        //console.log(this.responseText);
-        stageHighScorePayload(this.responseText)
-      }
-    };
+    // requestIp.onreadystatechange = function () {
+    //   if (this.readyState === 4) {
+    //     //console.log(this.responseText);
+    //     stageHighScorePayload(this.responseText)
+    //   }
+    // };
     
-    requestIp.send();
-    function stageHighScorePayload (data) {
-        playerIpData = JSON.parse(data);
-        //console.log (`raw data`, data);
-        //console.log (`JSON Parse`, playerIpData);
-    }
+    // requestIp.send();
+    // function stageHighScorePayload (data) {
+    //     playerIpData = JSON.parse(data);
+    //     //console.log (`raw data`, data);
+    //     //console.log (`JSON Parse`, playerIpData);
+    // }
 
     // start game
     myGameArea.start();
@@ -249,30 +382,31 @@ function updateGameArea() {
 
     if ( jumperInAir && !chutePulled ) {
         
-        if ( jumperGamePiece.y.between(   1, 150) ) {
-            roundScoreGamePiece.text = scoreMatrix[1];
+        if ( jumperGamePiece.y.between(   1, (Math.floor(canvasY * .375))) ) {
+            roundScoreGamePiece.text = scoreMatrix[0];
             roundScore = scoreMatrix[1];
-            landingPadGamePiece.width = 60;
+            landingPadGamePiece.width = landingPadGamePieceW;
+            ;
         }
-        if ( jumperGamePiece.y.between( 151, 250) ) {
-            roundScoreGamePiece.text = scoreMatrix[2];
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .375)), (Math.floor(canvasY * .600))) ) {
+            roundScoreGamePiece.text = scoreMatrix[1];
             roundScore = scoreMatrix[2];
-            landingPadGamePiece.width = 50;
+            landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .20);
         }
-        if ( jumperGamePiece.y.between( 251, 300) ) {
-            roundScoreGamePiece.text = scoreMatrix[3];
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .600)), (Math.floor(canvasY * .715))) ) {
+            roundScoreGamePiece.text = scoreMatrix[2];
             roundScore = scoreMatrix[3];
-            landingPadGamePiece.width = 40;
+            landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .35);
         }
-        if ( jumperGamePiece.y.between( 301, 350) ) {
-            roundScoreGamePiece.text = scoreMatrix[4];
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .715)), (Math.floor(canvasY * .815))) ) {
+            roundScoreGamePiece.text = scoreMatrix[3];
             roundScore = scoreMatrix[4];
-            landingPadGamePiece.width = 38;
+            landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .55);
         }
-        if ( jumperGamePiece.y.between( 350, 400) ) {
-            roundScoreGamePiece.text = scoreMatrix[5];
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .815)), canvasY) ) {
+            roundScoreGamePiece.text = scoreMatrix[4];
             roundScore = scoreMatrix[5];
-            landingPadGamePiece.width = 36;
+            landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .65);
         };
     };
     
@@ -523,7 +657,7 @@ function moveLeft() {
   function ambulancePickup() {
     ambulanceGamePiece.speedX -= .25;
     redCrossGamePiece.x = ambulanceGamePiece.x;
- if ( ambulanceGamePiece.x < 1 ) {
+ if ( ambulanceGamePiece.x < -20 ) {      // needs to drive off screen
       reset()
   };
 } 
@@ -531,7 +665,7 @@ function moveLeft() {
   function truckPickup() {
         ambulanceGamePiece.speedX -= .25;
         windowGamePiece.x = ambulanceGamePiece.x - 10;
-     if ( ambulanceGamePiece.x < 1 ) {
+     if ( ambulanceGamePiece.x < -20 ) {    // needs to drive off screen
           reset()
       };
   } 
@@ -544,6 +678,13 @@ function moveLeft() {
         jumperGamePiece.x = planeGamePiece.x;
         jumperGamePiece.speedX = planeGamePiece.speedX;
   };
+
+    function randomNumber (min, max, fixed) {
+        let rn = 0;
+        rn=((Math.random() * (max - min))+ min).toFixed(fixed);
+        return +rn;
+    }
+
 
     function jump() {
         if ( jumperInAir && letGoOfJumpButton ) {
@@ -672,24 +813,23 @@ function moveLeft() {
         };
         landedSafelyFlag = false;
         splattedFlag = false;
-        ambulanceGamePiece.x = 600;
+        ambulanceGamePiece.x = canvasX;
         ambulanceGamePiece.speedX = 0;
-        redCrossGamePiece.x = ambulanceGamePiece.x + 3;
         windowGamePiece.x = ambulanceGamePiece.x;
-        planeGamePiece.x = 580;
+        planeGamePiece.x = canvasX-20;
         planeGamePiece.speedX = 0;
-        jumperGamePiece.x = 580;
+        jumperGamePiece.x = canvasX-20;
         jumperGamePiece.y = 10;
         jumperGamePiece.speedX = planeGamePiece.speedX;
         jumperGamePiece.speedY = 0;
         chutePulled = false;
         jumperInAir = false;
-        landingPadx = (Math.floor(Math.random() * 500 ));
-        landingPadGamePiece.width = 60;
-        landingPadGamePiece.x = landingPadx;
-        roundScoreGamePiece.x = landingPadx;
+        landingPadX = randomNumber(5, canvasX - 100, 0);
+        landingPadGamePiece.width = landingPadGamePieceW;
+        landingPadGamePiece.x = landingPadX;
+        roundScoreGamePiece.x = landingPadX;
         roundScoreGamePiece.text = '! GO !';
-        windCurrent = Math.floor(Math.random() * 5 ) - 2;
+        windCurrent = randomNumber(-2,2,0)
         letGoOfJumpButton = false;
         firstChutePull = true;
         chuteTimerSet = false;
