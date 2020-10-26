@@ -15,8 +15,6 @@ const goGameButton = document.getElementById("goGameButton");
 // setiables that adjust game play (for all size canvases)
 const totalLifes = 3;
 const screenUpdateInterval = 20;   // Alters screen update speed
-const gravityFreeFall = 1.75;   // bigger number faster fall
-const gravityChute = .75;   // bigger number faster fall
 const chuteOpeningTime = 1250; // time in millisecs
 const planeInertiaInfluance = .01;  // bigger number slows jumper down more quickly upon jump (pre chute)
 const planeMinimumSpeed = 1.1;
@@ -72,6 +70,8 @@ let windSockFlagW2 = 0;
 let windowGamePieceWH = 0;
 let landingPadGamePieceH = 0;
 let landingPadGamePieceW = 0;
+let gravityFreeFall = 0;   // bigger number faster fall
+let gravityChute = 0;   // bigger number faster fall
 
 
 
@@ -113,13 +113,61 @@ function canvasSizeLarge () {
     canvasSize = 'large';
     canvasX = 1024;
     canvasY = 768;
+    planeGamePieceW = 54;
+    planeGamePieceH = 28;
+    jumperGamePieceW = 30;
+    jumperGamePieceH = 40;
+    paraChuteGamePieceGreenW = jumperGamePieceW;
+    paraChuteGamePieceGreenH = 12;
+    paraChuteGamePieceYellowW = jumperGamePieceW;
+    paraChuteGamePieceYellowH = 12;
+    splatMessageH = '140px'
+    headerFontSize = "25px"
+    redCrossGamePieceH = '40px'
+    ambulanceGamePieceW = 58;
+    ambulanceGamePieceH = 28;
+    windowGamePieceWH = 14;
+    headerFontX = parseInt(headerFontSize);
+    windSockPoleH = 90;
+    windSockPoleW = 7;
+    windSockPoleX = 60;
+    windSockFlagH = 18;
+    windSockFlagW2 = 60;
+    landingPadGamePieceH = 9;
+    landingPadGamePieceW = 80;
+    gravityFreeFall = 3.50;   // bigger number faster fall
+    gravityChute = 1.75; // bigger number faster fall
     startGame();
 };
 
 function canvasSizeMedium () {
     canvasSize = 'medium';
     canvasX = 800;
-    canvasY = 600;
+    canvasY = 600;          
+    planeGamePieceW = 40;
+    planeGamePieceH = 22;
+    jumperGamePieceW = 25;
+    jumperGamePieceH = 35;
+    paraChuteGamePieceGreenW = jumperGamePieceW;
+    paraChuteGamePieceGreenH = 9;
+    paraChuteGamePieceYellowW = jumperGamePieceW;
+    paraChuteGamePieceYellowH = 9;
+    splatMessageH = '120px'
+    redCrossGamePieceH = '30px'
+    ambulanceGamePieceW = 44;
+    ambulanceGamePieceH = 22;
+    windowGamePieceWH = 12;
+    headerFontSize = "20px"
+    headerFontX = parseInt(headerFontSize);
+    windSockPoleH = 75;
+    windSockPoleW = 5;
+    windSockPoleX = 50;
+    windSockFlagH = 14;
+    windSockFlagW2 = 50;
+    landingPadGamePieceH = 7;
+    landingPadGamePieceW = 70;
+    gravityFreeFall = 2.70;   // bigger number faster fall
+    gravityChute = 1.35; // bigger number faster fall
     startGame();
 };
 
@@ -127,6 +175,30 @@ function canvasSizeSmall () {
     canvasSize = 'small';
     canvasX = 600;
     canvasY = 400;
+    planeGamePieceW = 30;
+    planeGamePieceH = 15;
+    jumperGamePieceW = 20;
+    jumperGamePieceH = 30;
+    paraChuteGamePieceGreenW = jumperGamePieceW;
+    paraChuteGamePieceGreenH = 6;
+    paraChuteGamePieceYellowW = jumperGamePieceW;
+    paraChuteGamePieceYellowH = 6;
+    splatMessageH = '100px'
+    redCrossGamePieceH = '20px'
+    ambulanceGamePieceW = 35;
+    ambulanceGamePieceH = 15;
+    windowGamePieceWH = 10;
+    headerFontSize = "15px"
+    headerFontX = parseInt(headerFontSize);
+    windSockPoleH = 60;
+    windSockPoleW = 3;
+    windSockPoleX = 40;
+    windSockFlagH = 10;
+    windSockFlagW2 = 40;
+    landingPadGamePieceH = 5;
+    landingPadGamePieceW = 60;
+    gravityFreeFall = 1.75;   // bigger number faster fall
+    gravityChute = .88; // bigger number faster fall
     startGame();
 };
 
@@ -147,85 +219,7 @@ function startGame() {
     body1.scrollIntoView(true);
     
     
-    //Gamepiece sizing
-    switch (canvasSize) {
-        case 'large':  
-            planeGamePieceW = 54;
-            planeGamePieceH = 28;
-            jumperGamePieceW = 30;
-            jumperGamePieceH = 40;
-            paraChuteGamePieceGreenW = jumperGamePieceW;
-            paraChuteGamePieceGreenH = 12;
-            paraChuteGamePieceYellowW = jumperGamePieceW;
-            paraChuteGamePieceYellowH = 12;
-            splatMessageH = '140px'
-            headerFontSize = "25px"
-            redCrossGamePieceH = '40px'
-            ambulanceGamePieceW = 58;
-            ambulanceGamePieceH = 28;
-            windowGamePieceWH = 14;
-            headerFontX = parseInt(headerFontSize);
-            windSockPoleH = 90;
-            windSockPoleW = 7;
-            windSockPoleX = 60;
-            windSockFlagH = 18;
-            windSockFlagW2 = 60;
-            landingPadGamePieceH = 9;
-            landingPadGamePieceW = 80;
-            break;
-
-        case 'medium': 
-            planeGamePieceW = 40;
-            planeGamePieceH = 22;
-            jumperGamePieceW = 25;
-            jumperGamePieceH = 35;
-            paraChuteGamePieceGreenW = jumperGamePieceW;
-            paraChuteGamePieceGreenH = 9;
-            paraChuteGamePieceYellowW = jumperGamePieceW;
-            paraChuteGamePieceYellowH = 9;
-            splatMessageH = '120px'
-            redCrossGamePieceH = '30px'
-            ambulanceGamePieceW = 44;
-            ambulanceGamePieceH = 22;
-            windowGamePieceWH = 12;
-            headerFontSize = "20px"
-            headerFontX = parseInt(headerFontSize);
-            windSockPoleH = 75;
-            windSockPoleW = 5;
-            windSockPoleX = 50;
-            windSockFlagH = 14;
-            windSockFlagW2 = 50;
-            landingPadGamePieceH = 7;
-            landingPadGamePieceW = 70;
-            break;
-        case 'small':  
-            planeGamePieceW = 30;
-            planeGamePieceH = 15;
-            jumperGamePieceW = 20;
-            jumperGamePieceH = 30;
-            paraChuteGamePieceGreenW = jumperGamePieceW;
-            paraChuteGamePieceGreenH = 6;
-            paraChuteGamePieceYellowW = jumperGamePieceW;
-            paraChuteGamePieceYellowH = 6;
-            splatMessageH = '100px'
-            redCrossGamePieceH = '20px'
-            ambulanceGamePieceW = 35;
-            ambulanceGamePieceH = 15;
-            windowGamePieceWH = 10;
-            headerFontSize = "15px"
-            headerFontX = parseInt(headerFontSize);
-            windSockPoleH = 60;
-            windSockPoleW = 3;
-            windSockPoleX = 40;
-            windSockFlagH = 10;
-            windSockFlagW2 = 40;
-            landingPadGamePieceH = 5;
-            landingPadGamePieceW = 60;
-            break;
-        default:
-            console.log (`Error in sizing switch stmt`);
-    };
-    
+      
     //Game pieces
     console.log (`plane size`, planeGamePieceH, planeGamePieceW, typeof jumperGamePieceH);
 
@@ -362,7 +356,7 @@ function component(width, height, color, x, y, text) {
         return landed;
     }
     this.splat = function() {
-        var mybottom = this.y + (this.height) + (landingPadGamePiece.height - 1);
+        var mybottom = this.y + (this.height) + (landingPadGamePieceH - 2);
         let splatted = false;
         if (mybottom > canvasY) {
             splatted = true
@@ -384,28 +378,28 @@ function updateGameArea() {
         
         if ( jumperGamePiece.y.between(   1, (Math.floor(canvasY * .375))) ) {
             roundScoreGamePiece.text = scoreMatrix[0];
-            roundScore = scoreMatrix[1];
+            roundScore = scoreMatrix[0];
             landingPadGamePiece.width = landingPadGamePieceW;
             ;
         }
-        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .375)), (Math.floor(canvasY * .600))) ) {
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .375)), (Math.floor(canvasY * .550))) ) {
             roundScoreGamePiece.text = scoreMatrix[1];
-            roundScore = scoreMatrix[2];
+            roundScore = scoreMatrix[1];
             landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .20);
         }
-        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .600)), (Math.floor(canvasY * .715))) ) {
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .550)), (Math.floor(canvasY * .660))) ) {
             roundScoreGamePiece.text = scoreMatrix[2];
-            roundScore = scoreMatrix[3];
+            roundScore = scoreMatrix[2];
             landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .35);
         }
-        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .715)), (Math.floor(canvasY * .815))) ) {
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .660)), (Math.floor(canvasY * .745))) ) {
             roundScoreGamePiece.text = scoreMatrix[3];
-            roundScore = scoreMatrix[4];
+            roundScore = scoreMatrix[3];
             landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .55);
         }
-        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .815)), canvasY) ) {
+        if ( jumperGamePiece.y.between( (Math.ceil(canvasY * .745)), canvasY) ) {
             roundScoreGamePiece.text = scoreMatrix[4];
-            roundScore = scoreMatrix[5];
+            roundScore = scoreMatrix[4];
             landingPadGamePiece.width = landingPadGamePieceW - (landingPadGamePieceW * .65);
         };
     };
@@ -800,7 +794,7 @@ function moveLeft() {
     function reset() {
         if ( landedSafelyFlag ) {
             gameScoreAccumulator += roundScore
-            Math.round (gameScoreAccumulator);
+            //Math.round (gameScoreAccumulator);
             gameScoreGamePiece.text = `Score: ${gameScoreAccumulator}`
         };
         if ( splattedFlag ) {
@@ -819,7 +813,7 @@ function moveLeft() {
         planeGamePiece.x = canvasX-20;
         planeGamePiece.speedX = 0;
         jumperGamePiece.x = canvasX-20;
-        jumperGamePiece.y = 10;
+        jumperGamePiece.y = headerFontX + 2;
         jumperGamePiece.speedX = planeGamePiece.speedX;
         jumperGamePiece.speedY = 0;
         chutePulled = false;
