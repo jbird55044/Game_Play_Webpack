@@ -1,0 +1,18 @@
+<div class="header" id="headerDiv" style="visibility:hidden" >
+    <h1 class="center">Game Over!</h1>
+    <p class="italic">Let's See if you got High Score . . .</p>
+    <p id="scoreMessage">score message here</p>
+    <button id="captureInitialsButton" style="visibility:hidden">Click to Enter Initials</button>
+  </div>
+
+
+  <div class="highScore" id="highScoreDiv" style="visibility:hidden">
+    <h2>The Top 10 Leaderboard is:</h2>
+    <p id="leaderBoardUl"></pid></p>
+    
+    <h3> Can you make it on the Leaderboard?? </h3>
+  </div>
+  
+  <div class="restart" id="restartGameDiv" style="visibility:hidden">
+    <button id="restartGameButton"> >>>> Restart Game <<<<< </button>
+  </div>
