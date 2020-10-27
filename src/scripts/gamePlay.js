@@ -269,7 +269,7 @@ function startGame() {
     
     getTenthHighScore();
   
-    get IP address info 
+    //get IP address info 
     let requestIp = new XMLHttpRequest();
     requestIp.open('GET', ipAddressUrl);
     requestIp.setRequestHeader('Accept', 'application/json');
