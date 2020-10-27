@@ -20,13 +20,7 @@ const planeInertiaInfluance = .01;  // bigger number slows jumper down more quic
 let   windCurrent = randomNumber(-2,2,0)  // 5 variations; negative is West, 0 neutral, Pos is East
 const windChangeRate = 300;   // 0 to 500 rate of wind change.  0 Most Agressive, 100 most time between changes
 const scoreMatrix = [120, 220, 340, 550, 680];
-const parachuteLRMax = {   // fastest speeds allowed during varying winds
-    west2Max: -1.75,    west2Min: -.25,     west2ChuteDefault: -.5,
-    west1Max: -1,       west1Min: .5,       west1ChuteDefault: -.25,
-    neutralW: -.75,     neutralE: .75,      neutralChuteDefault: 0,
-    east1Max: 1,        east1Min: -.5,      east1ChuteDefault: .25,
-    east2Max: 1.75,     east2Min: .25,      east2ChuteDefault: .5
-};
+
 
 //counters and holders
 let canvasX = 0;   //size of canvas set in setup fns
@@ -72,7 +66,7 @@ let gravityChute = 0;
 let planeMinimumSpeed = 0; 
 let planeMaximumSpeed = 0;
 let parachuteLRInfluance = 0;
-
+let parachuteLRMax = {};
 
 
 const apiUrl = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";  //api
@@ -139,7 +133,14 @@ function canvasSizeLarge () {
     gravityChute = 1.75; // bigger number faster fall
     planeMinimumSpeed = -2.20; // negative fly west.  Bigger integer goes faster  9 sec target
     planeMaximumSpeed = -4.0;  // 5 sec target
-    parachuteLRInfluance = .175  // bigger number, the more the chute can go L or R when pulled
+    parachuteLRInfluance = .299  // bigger number, the more the chute can go L or R when pulled
+    parachuteLRMax = {   // fastest speeds allowed during varying winds
+        west2Max: -2.9865,      west2Min: -.42665,     west2ChuteDefault: -.8533,
+        west1Max: -1.706,       west1Min: .8533,       west1ChuteDefault: -.42665,
+        neutralW: -1.28,        neutralE: 1.28,        neutralChuteDefault: 0,
+        east1Max: 1.706,        east1Min: -.8533,      east1ChuteDefault: .42665,
+        east2Max: 2.9865,       east2Min: .42665,      east2ChuteDefault: .8533
+    };
     startGame();
 };
 
@@ -173,7 +174,14 @@ function canvasSizeMedium () {
     gravityChute = 1.35; // bigger number faster fall
     planeMinimumSpeed = -1.75; // negative fly west.  Bigger integer goes faster  9 sec target
     planeMaximumSpeed = -3.20;  // 5 sec target
-    parachuteLRInfluance = .175  // bigger number, the more the chute can go L or R when pulled
+    parachuteLRInfluance = .233  // bigger number, the more the chute can go L or R when pulled
+    parachuteLRMax = {   // fastest speeds allowed during varying winds
+        west2Max: -2.3275,     west2Min: -.3325,     west2ChuteDefault: -.665,
+        west1Max: -1.33,       west1Min: .665,       west1ChuteDefault: -.3325,
+        neutralW: -1,          neutralE: 1,          neutralChuteDefault: 0,
+        east1Max: 1.33,        east1Min: -.665,      east1ChuteDefault: .3325,
+        east2Max: 2.3275,      east2Min: .3325,      east2ChuteDefault: .665
+    };
     startGame();
 };
 
@@ -208,6 +216,13 @@ function canvasSizeSmall () {
     planeMinimumSpeed = -1.30; // negative fly west.  Bigger integer goes faster  9 sec target
     planeMaximumSpeed = -2.35;  // 5 sec target
     parachuteLRInfluance = .175  // bigger number, the more the chute can go L or R when pulled
+    parachuteLRMax = {   // fastest speeds allowed during varying winds
+        west2Max: -1.75,    west2Min: -.25,     west2ChuteDefault: -.5,
+        west1Max: -1,       west1Min: .5,       west1ChuteDefault: -.25,
+        neutralW: -.75,     neutralE: .75,      neutralChuteDefault: 0,
+        east1Max: 1,        east1Min: -.5,      east1ChuteDefault: .25,
+        east2Max: 1.75,     east2Min: .25,      east2ChuteDefault: .5
+    };
     startGame();
 };
 
