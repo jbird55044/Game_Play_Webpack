@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Parachute - Jim Bird</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="./styles/style.css" />
+</head>
+
+
+
+<body id="bodyGame" onload="canvasSizeSmall()">
+  
+  <div class="gameButtons" id="gameButtonsDiv" style="visibility:visible">
+    <br>
+    <button id="moveLeftButton">LEFT-----</button> 
+    <button id="moveRightButton">-----RIGHT</button>
+    <br>
+    <button id="jumpButton"> - Jump! --- PULL! --- </button>
+    <br>
+    <br>
+    <button id="goGameButton" autofocus>>> Start Game <<</button> 
+    <p></p>
+    <a href="index.html" target="_blank"> Click Here for Instructions </a>
+    <br>  
+    </button>
+  </div>
+  
+  <div class="header" id="headerDiv" style="visibility:hidden" >
+    <h1 class="center">Game Over!</h1>
+    <p class="italic">Let's See if you got High Score . . .</p>
+    <p id="scoreMessage">score message here</p>
+    <button id="captureInitialsButton" style="visibility:hidden">Click to Enter Initials</button>
+  </div>
+  
+  
+  <div class="highScore" id="highScoreDiv" style="visibility:hidden">
+    <h2>The Top 10 Leaderboard is:</h2>
+    <p id="leaderBoardUl"></pid></p>
+    
+    <h3> Can you make it on the Leaderboard?? </h3>
+  </div>
+  
+  <div class="restart" id="restartGameDiv" style="visibility:hidden">
+    <button id="restartGameButton"> >>>> Restart Game <<<<< </button>
+  </div>
+
+  <script src="scripts/gamePlay.js"></script>
+</body>
+
+</html>

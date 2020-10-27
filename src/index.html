@@ -7,46 +7,38 @@
     <link rel="stylesheet" type="text/css" media="screen" href="./styles/style.css" />
    </head>
 
-<body onload="canvasSizeLarge()" id="body1">
+<body class="instructions" id="body2">
 
-  
-  
-  <div class="gameButtons" id="gameButtonsDiv" style="visibility:visible">
+  <div class="instructions">
+    <h1>Jim's Parachute Game</h1>
+    <p>This is a knock off of a 1978 arcade game called Skydiver where a plane flies across the screen, and when ready you press the ‘jump’ key to leave the plane aiming for the landing pad below.</p>
     <br>
-    <button id="moveLeftButton">LEFT-----</button> 
-    <button id="moveRightButton">-----RIGHT</button>
+    <p>To Play:</p>
+    <ul>
+        <li> Press the <Start Game> button</li>
+        <li> The plane will start flying from the right side of the screen</li>
+        <li> Press the SPACE BAR to jump from the plane.  You will quickly descend to the ground – get ready to deploy the chute!</li>
+        <li> Press the SPACE BAR again to deploy the chute.  It takes just over a second to deploy, so be prepared.</li>
+        <li> Most importantly use the ARROW KEYS to influance the landing with the chute deployed!</li>
+        <li> If you hit the landing pad – you get points.  If you miss . . .   bummer.</li>
+        <li> The longer you wait to deploy the chute, the more points you get.</li>
+    </ul>
     <br>
-    <button id="jumpButton"> - Jump! --- PULL! --- </button>
+    <p>BTW - Wind changes in both direction and strength which influences the jumper with the chute is deployed. You can see the weather information from the wind sock at the bottom left. The wind has logic built in so the direction and gusts are ‘logical’, not random.</p>
     <br>
-    <br>
-    <button id="goGameButton">>> Start Game <<</button> 
-    <p></p>
-    <a href="instructions.html" target="_blank"> Click Here for Instructions </a>
-    <br>  
-    </button>
+    <p>Once game starts – it’s best to LEFT and RIGHT ARROWS and SPACEBAR for jumper/chute control. Good luck!</p>
   </div>
-  
-    <div class="header" id="headerDiv" style="visibility:hidden" >
-      <h1 class="center">Game Over!</h1>
-      <p class="italic">Let's See if you got High Score . . .</p>
-      <p id="scoreMessage">score message here</p>
-      <button id="captureInitialsButton" style="visibility:hidden">Click to Enter Initials</button>
-    </div>
-  
-  
-    <div class="highScore" id="highScoreDiv" style="visibility:hidden">
-      <h2>The Top 10 Leaderboard is:</h2>
-      <p id="leaderBoardUl"></pid></p>
-      
-      <h3> Can you make it on the Leaderboard?? </h3>
-    </div>
-    
-    <div class="restart" id="restartGameDiv" style="visibility:hidden">
-      <button id="restartGameButton"> >>>> Restart Game <<<<< </button>
-    </div>
 
+  <div class="gameStartButtons">
+    <h3>Start Game . . . </h3>
+    <a class="button" href="gamePlaySmall.html">Start SMALL Game  (600x400)</a>
+    <p></p>
+    <a class="button" href="gamePlayMedium.html">Start MEDIUM Game  (800x600)</a>
+    <p></p>
+    <a class="button" href="gamePlayLarge.html">Start LARGE Game  (1024x768)</a>
+    <p></p>
+  </div>
 
-  <script src="scripts/index.js"></script>
 </body>
 
 </html>

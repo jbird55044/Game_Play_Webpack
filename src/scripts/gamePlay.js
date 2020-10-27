@@ -6,7 +6,7 @@ const gameButtonsDiv = document.getElementById("gameButtonsDiv");
 const headerDiv = document.getElementById("headerDiv");
 const highScoreDiv = document.getElementById("highScoreDiv");
 const restartGameDiv = document.getElementById("restartGameDiv");
-const body1 = document.getElementById("body1");
+const bodyGame = document.getElementById("bodyGame");
 const jumpButton = document.getElementById("jumpButton");
 const moveLeftButton = document.getElementById("moveLeftButton");
 const moveRightButton = document.getElementById("moveRightButton");
@@ -56,6 +56,7 @@ let paraChuteGamePieceYellowW = 0;
 let paraChuteGamePieceYellowH = 0;
 let windSockPoleH = 0;
 let windSockFlagH = 0;
+let windSockPoleW = 0;
 let windSockPoleX = 0;
 let windSockFlagW2 = 0;
 let windowGamePieceWH = 0;
@@ -67,12 +68,8 @@ let planeMinimumSpeed = 0;
 let planeMaximumSpeed = 0;
 let parachuteLRInfluance = 0;
 let parachuteLRMax = {};
-
-
 const apiUrl = "https://5f8f6e13693e730016d7b12c.mockapi.io/parachute/HighScore";  //api
 const ipAddressUrl = "https://api.ipdata.co?api-key=35d15246450fb408a65988c1716786efdb6e46661fe6da4e8b950a8d";  //ip address getter
-
-
 
 
 //keyboard influance
@@ -103,7 +100,9 @@ let splatMessage;
 let lifesGamePiece;
 let highScoreGamePiece;
 
-function canvasSizeLarge () {
+
+function canvasSizeLarge() {
+    console.log (`In Large Game`);
     canvasSize = 'large';
     canvasX = 1024;
     canvasY = 768;
@@ -144,8 +143,8 @@ function canvasSizeLarge () {
     startGame();
 };
 
-function canvasSizeMedium () {
-    canvasSize = 'medium';
+function canvasSizeMedium() {
+    console.log (`In Medium Game`);
     canvasX = 800;
     canvasY = 600;          
     planeGamePieceW = 40;
@@ -185,7 +184,8 @@ function canvasSizeMedium () {
     startGame();
 };
 
-function canvasSizeSmall () {
+function canvasSizeSmall() {
+    console.log (`In Small Game`);
     canvasSize = 'small';
     canvasX = 600;
     canvasY = 400;
@@ -240,13 +240,11 @@ function startGame() {
     headerDiv.style.visibility= "hidden";
     highScoreDiv.style.visibility = "hidden";
     restartGameDiv.style.visibility = "hidden";
-    body1.scrollIntoView(true);
+    bodyGame.scrollIntoView(true);
     
     
       
     //Game pieces
-    console.log (`plane size`, planeGamePieceH, planeGamePieceW, typeof jumperGamePieceH);
-
     planeGamePiece = new component(planeGamePieceW, planeGamePieceH, "blue", canvasX-20, headerFontX+2);
     jumperGamePiece = new component(jumperGamePieceW, jumperGamePieceH, "red", canvasX-20, headerFontX+2);
     paraChuteGamePieceGreen = new component(paraChuteGamePieceGreenW, paraChuteGamePieceGreenH, "green", canvasX-20, headerFontX+2);
@@ -271,24 +269,24 @@ function startGame() {
     
     getTenthHighScore();
   
-    // get IP address info 
-    // let requestIp = new XMLHttpRequest();
-    // requestIp.open('GET', ipAddressUrl);
-    // requestIp.setRequestHeader('Accept', 'application/json');
+    get IP address info 
+    let requestIp = new XMLHttpRequest();
+    requestIp.open('GET', ipAddressUrl);
+    requestIp.setRequestHeader('Accept', 'application/json');
     
-    // requestIp.onreadystatechange = function () {
-    //   if (this.readyState === 4) {
-    //     //console.log(this.responseText);
-    //     stageHighScorePayload(this.responseText)
-    //   }
-    // };
+    requestIp.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        //console.log(this.responseText);
+        stageHighScorePayload(this.responseText)
+      }
+    };
     
-    // requestIp.send();
-    // function stageHighScorePayload (data) {
-    //     playerIpData = JSON.parse(data);
-    //     //console.log (`raw data`, data);
-    //     //console.log (`JSON Parse`, playerIpData);
-    // }
+    requestIp.send();
+    function stageHighScorePayload (data) {
+        playerIpData = JSON.parse(data);
+        //console.log (`raw data`, data);
+        //console.log (`JSON Parse`, playerIpData);
+    }
 
     // start game
     myGameArea.start();
@@ -872,6 +870,7 @@ function moveLeft() {
         headerDiv.style.visibility = "visible";
         highScoreDiv.style.visibility = "visible";
         restartGameDiv.style.visibility = "visible";
+        restartGameButton.focus;
 
        
         updateLeaderboard();   //update the board via async API routine

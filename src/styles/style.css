@@ -9,46 +9,47 @@ canvas {
 
 .instructions {
   padding: 20px;
-  width: 400px;
+  margin: 30px;
+  margin-top: 10PX;
   text-align: left;
   background: #164914;
   color: #FBEEC1;
-  font-size: large;
+  font-size: medium;
   font-family: 'Lucida Sans', 'Lucida Sans Regu
 }
 
 .header {
-    padding: 20px;
-    width: 600px;
-    text-align: left;
-    background: #164914;
-    color: #FBEEC1;
-    font-size: large;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  }
+  padding: 20px;
+  width: 600px;
+  text-align: left;
+  background: #164914;
+  color: #FBEEC1;
+  font-size: large;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
 
 .highScore {
-    padding: 20px;
-    width: 600px;
-    text-align: center;
-    background: #8D8741;
-    color: #FBEEC1;
-    font-size: small;
-    font-style: italic;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  
+  padding: 20px;
+  width: 600px;
+  text-align: center;
+  background: #8D8741;
+  color: #FBEEC1;
+  font-size: small;
+  font-style: italic;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
 .restart {
-    padding: 20px;
-    width: 600px;
-    text-align: center;
-    background: #164914;
-    color: #FBEEC1;
-    font-size: large;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  }
+  padding: 20px;
+  width: 600px;
+  text-align: center;
+  background: #164914;
+  color: #FBEEC1;
+  font-size: large;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
 .italic {
-    font-style: italic;
+  font-style: italic;
 }
 
 .center {
@@ -57,25 +58,56 @@ canvas {
 
 
 .doubleBorder {
-    border-style: double;
-    padding: 15px;
-    background-color: #BC986A;
+  border-style: double;
+  padding: 15px;
+  background-color: #BC986A;
 }
 
-a:link {
-  color: #f1da889a;
+.gameStartButtons {
+  margin-left: 50px;
+  padding: 20px 60px;
+  background-color: #4CAF50; /* Green */
+  border-radius: 20px;
+  border-style: double; 
+  color: #FBEEC1;
+  text-align: left;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 18px;
 }
 
-a:visited {
-  color: #8D8741
+.button {
+  border-radius: 8px;
+  font-weight: bold;
+  font: bold large Arial;
+  text-decoration: none;
+  background-color: #EEEEEE;
+  padding: 6px 16px 6px 16px;
+  border-top: 3px solid #CCCCCC;
+  border-right: 3px solid #333333;
+  border-bottom: 3px solid #333333;
+  border-left: 3px solid #CCCCCC;
+}
+
+a {
+  margin: 50px;
 }
 
 a:hover {
-  color: #eaf855
+  color: #7de07d;
 }
+
+a:link {
+  color: #164914;
+}
+
+a:visited {
+  color: #309b2c;
+}
+
 
 table {
   margin-left: 20%;
-  width: 300px
+  width: 300px;
 }
 
